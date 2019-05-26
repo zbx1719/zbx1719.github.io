@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558856822237">
+<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558857071346">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://zbx1719.github.io/styles/main.css">
 
@@ -39,7 +39,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://zbx1719.github.io">
-        <img src="https://zbx1719.github.io/images/avatar.png?v=1558856822237" class="site-logo">
+        <img src="https://zbx1719.github.io/images/avatar.png?v=1558857071346" class="site-logo">
         <h1 class="site-title">杂记</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -105,6 +105,23 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <h2 class="current-tag">标签: Java</h2>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://zbx1719.github.io/post/JMbGBc2io">
+                  <h2 class="post-title">用SQLite做缓存的本地持久化</h2>
+                </a>
+                <div class="post-date">
+                  2019-05-26
+                </div>
+                <div class="post-abstract">
+                  <p>有时候我们需要将缓存中的数据持久化到硬盘中，以防服务崩溃重启后缓存中数据丢失。或者是查询一次数据库成本较高，需要将查询回来的结果存到本地以多次使用。这时候我们就需要一个本地缓存来存储这一部分数据。</p>
+<p>SQLite作为一个轻量级数据库可以很轻易满足这一需求，可以在大部分的场景下使用。</p>
+
+                </div>
+              </div>
+              
+            </article>
           
             <article class="post-item">
               <div class="left">

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>用SQLite做缓存的本地持久化 | 杂记</title>
+<meta name="description" content="温故而知新">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558857071346">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://zbx1719.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=GTM-MSXHFN3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'GTM-MSXHFN3');
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://zbx1719.github.io">
+        <img src="https://zbx1719.github.io/images/avatar.png?v=1558857071346" class="site-logo">
+        <h1 class="site-title">杂记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/zbx1719" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://zbx1719.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">用SQLite做缓存的本地持久化</h2>
+            <div class="post-date">2019-05-26</div>
+            
+            <div class="post-content">
+              <p>有时候我们需要将缓存中的数据持久化到硬盘中，以防服务崩溃重启后缓存中数据丢失。或者是查询一次数据库成本较高，需要将查询回来的结果存到本地以多次使用。这时候我们就需要一个本地缓存来存储这一部分数据。</p>
+<p>SQLite作为一个轻量级数据库可以很轻易满足这一需求，可以在大部分的场景下使用。</p>
+<!-- more -->
+<h2 id="sqlite配置mybatis">SQLite配置（Mybatis）</h2>
+<p>因为SQLite本身就是一个轻量级的数据库，因此我们只需要按照配置数据库的方式对它配置就行了。这里以mybatis为例</p>
+<h3 id="xml配置">xml配置</h3>
+<p>在spring的xml配置文件中加入下面几个bean，其中url的value为<code>jdbc:sqlite:SQLite数据库文件的绝对路径</code></p>
+<pre><code>&lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;
+    &lt;property name=&quot;driverClassName&quot; value=&quot;org.sqlite.JDBC&quot; /&gt;
+    &lt;property name=&quot;url&quot; value=&quot;jdbc:sqlite:/opt/applog/MskyLog/UmeInfoClientCache.db&quot; /&gt;
+    &lt;!-- 初始化连接大小 --&gt;
+    &lt;property name=&quot;initialSize&quot; value=&quot;10&quot; /&gt;
+    &lt;!-- 连接池最大数量 --&gt;
+    &lt;property name=&quot;maxActive&quot; value=&quot;10&quot; /&gt;
+    &lt;!-- 连接池最大空闲 --&gt;
+    &lt;property name=&quot;maxIdle&quot; value=&quot;10&quot; /&gt;
+    &lt;!-- 连接池最小空闲 --&gt;
+    &lt;property name=&quot;minIdle&quot; value=&quot;1&quot; /&gt;
+    &lt;!-- 获取连接最大等待时间 --&gt;
+    &lt;property name=&quot;maxWait&quot; value=&quot;3600&quot; /&gt;
+&lt;/bean&gt;
+
+
+&lt;!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 --&gt;
+&lt;bean id=&quot;sqlSessionFactory&quot; class=&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;&gt;
+    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot; /&gt;
+    &lt;!-- 自动扫描mapping.xml文件，**表示迭代查找 --&gt;
+    &lt;property name=&quot;mapperLocations&quot; value=&quot;classpath:sqlmap/*Mapper.xml&quot; /&gt;
+&lt;/bean&gt;
+
+&lt;!-- DAO接口所在包名，Spring会自动查找其下的类 ,包下的类需要使用@MapperScan注解,否则容器注入会失败 --&gt;
+&lt;bean class=&quot;org.mybatis.spring.mapper.MapperScannerConfigurer&quot;&gt;
+    &lt;property name=&quot;basePackage&quot; value=&quot;com.umetrip.infoclient.dao&quot; /&gt;
+    &lt;property name=&quot;sqlSessionFactoryBeanName&quot; value=&quot;sqlSessionFactory&quot; /&gt;
+&lt;/bean&gt;
+
+&lt;!-- (事务管理)transaction manager, use JtaTransactionManager for global tx --&gt;
+&lt;bean id=&quot;transactionManager&quot; class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;
+    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot; /&gt;
+&lt;/bean&gt;
+</code></pre>
+<h3 id="mapper类和xml">Mapper类和xml</h3>
+<p>这部分就是mybatis的配置，新建一个接口类</p>
+<pre><code>@MapperScan
+public interface CacheMapper {
+
+     boolean replace(EhCachePersistenceBean bean);
+
+     List&lt;EhCachePersistenceBean&gt; getAll();
+
+     void init();
+
+}
+</code></pre>
+<p>然后在对应的xml中加入接口对应的sql</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE mapper
+        PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;
+        &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
+
+&lt;!--ehcache数据持久化专用--&gt;
+
+&lt;mapper namespace=&quot;com.umetrip.infoclient.dao.CacheMapper&quot;&gt;
+    &lt;resultMap id=&quot;CacheMap&quot; type=&quot;com.umetrip.infocenter.entity.EhCachePersistenceBean&quot;&gt;
+        &lt;result column=&quot;cacheName&quot; jdbcType=&quot;VARCHAR&quot;/&gt;
+        &lt;result column=&quot;primaryKey&quot; jdbcType=&quot;VARCHAR&quot;/&gt;
+        &lt;result column=&quot;cacheValue&quot; jdbcType=&quot;VARCHAR&quot;/&gt;
+    &lt;/resultMap&gt;
+
+    &lt;insert id=&quot;replace&quot; parameterType=&quot;com.umetrip.infocenter.entity.EhCachePersistenceBean&quot;&gt;
+        REPLACE INTO EHCACHE_PERSISTENCE
+        (CACHENAME,PRIMARYKEY,CACHEVALUE)
+        VALUES
+        (#{cacheName},#{primaryKey},#{cacheValue})
+    &lt;/insert&gt;
+
+    &lt;select id=&quot;getAll&quot; resultMap=&quot;CacheMap&quot;&gt;
+       SELECT
+       CHACHENAME,PRIMARYKEY,CACHEVALUE
+       FROM
+       EHCACHE_PERSISTENCE
+    &lt;/select&gt;
+
+    &lt;update id=&quot;init&quot;&gt;
+        CREATE TABLE IF NOT EXISTS EHCACHE_PERSISTENCE(
+          CACHENAME VARCHAR(100),
+          PRIMARYKEY VARCHAR(50),
+          CACHEVALUE TEXT,
+          constraint EHCACHE_PERSISTENCE_pk
+              primary key (CACHENAME, PRIMARYKEY)
+         );
+
+    &lt;/update&gt;
+
+&lt;/mapper&gt;
+</code></pre>
+<p>工程启动时要调用建表的方法，防止新节点没有对应的数据库文件。
+我们可以测试一下</p>
+<pre><code>@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(value = &quot;classpath:applicationContext-infoclient.xml&quot;)
+public class TestMapper {
+
+    @Autowired
+    private CacheMapper cacheMapper;
+
+    @Test
+    public void testInit(){
+        cacheMapper.init();
+    }
+}
+</code></pre>
+<p>执行完testInit()方法后可以看到UmeInfoClientCache.db已经在/opt/applog/MskyLog/路径下存在了，用客户端打开db文件可以看到相应的表结构</p>
+<p>以上就是SQLite简单的使用方法。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://zbx1719.github.io/tag/MEs3-c6b5" class="tag">
+                    Java
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://zbx1719.github.io/post/qe9tUw9-p">
+                  <h3 class="post-title">
+                    Databus Mysql保存MaxScn的算法
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'a50cf7b05d39f4b2ddc6',
+        clientSecret: '854a34fcc7e77ac3fb19279f141f26c608226b2c',
+        repo: 'zbx1719.github.io',
+        owner: 'zbx1719',
+        admin: ['zbx1719'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

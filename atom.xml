@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zbx1719.github.io</id>
     <title>杂记</title>
-    <updated>2019-05-26T07:47:05.201Z</updated>
+    <updated>2019-05-26T07:51:13.209Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zbx1719.github.io"/>
     <link rel="self" href="https://zbx1719.github.io/atom.xml"/>
@@ -10,6 +10,168 @@
     <logo>https://zbx1719.github.io/images/avatar.png</logo>
     <icon>https://zbx1719.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, 杂记</rights>
+    <entry>
+        <title type="html"><![CDATA[Spring解决static方法注入mapper问题]]></title>
+        <id>https://zbx1719.github.io/post/ZP_pBgDQB</id>
+        <link href="https://zbx1719.github.io/post/ZP_pBgDQB">
+        </link>
+        <updated>2019-05-26T07:50:57.000Z</updated>
+        <summary type="html"><![CDATA[<p>开发中遇到一个问题，需要在工程启动时使用一个静态方法调用mapper从数据库加载数据做初始化。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>开发中遇到一个问题，需要在工程启动时使用一个静态方法调用mapper从数据库加载数据做初始化。</p>
+<!-- more -->
+<pre><code>@Autowired
+public CacheMapper cacheMapper;
+</code></pre>
+<p>但是会发现mapper注入失败，cacheMapper为null。这是因为静态变量/类变量不是对象的属性,而是一个类的属性,spring则是基于对象层面上的依赖注入。
+因此，我们要通过以下的方法，把cacheMapper变成一个静态变量，让static方法可以调用。</p>
+<pre><code>@Component
+public class SQLiteHelper {
+
+    @Autowired
+    public CacheMapper tmpCacheMapper;
+
+    private static CacheMapper cacheMapper;
+
+
+    @PostConstruct
+    public  void init(){
+        cacheMapper=tmpCacheMapper;
+        cacheMapper.init();
+ 
+        }
+    }
+   }
+
+</code></pre>
+<p>首先在class上加上@Component注解使该class能被作为bean加载</p>
+<p>然后实现一个被@PostConstruct注解修饰的init方法。@PostConstruct的作用是让init()方法在构造函数执行完成后立即执行。执行init()方法会实例化一个CacheMapper对象tmpCacheMapper，并把这个对象赋值给静态变量cacheMapper。此时，cacheMapper就可以被static方法调用了。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[用SQLite做缓存的本地持久化]]></title>
+        <id>https://zbx1719.github.io/post/JMbGBc2io</id>
+        <link href="https://zbx1719.github.io/post/JMbGBc2io">
+        </link>
+        <updated>2019-05-26T07:48:32.000Z</updated>
+        <summary type="html"><![CDATA[<p>有时候我们需要将缓存中的数据持久化到硬盘中，以防服务崩溃重启后缓存中数据丢失。或者是查询一次数据库成本较高，需要将查询回来的结果存到本地以多次使用。这时候我们就需要一个本地缓存来存储这一部分数据。</p>
+<p>SQLite作为一个轻量级数据库可以很轻易满足这一需求，可以在大部分的场景下使用。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>有时候我们需要将缓存中的数据持久化到硬盘中，以防服务崩溃重启后缓存中数据丢失。或者是查询一次数据库成本较高，需要将查询回来的结果存到本地以多次使用。这时候我们就需要一个本地缓存来存储这一部分数据。</p>
+<p>SQLite作为一个轻量级数据库可以很轻易满足这一需求，可以在大部分的场景下使用。</p>
+<!-- more -->
+<h2 id="sqlite配置mybatis">SQLite配置（Mybatis）</h2>
+<p>因为SQLite本身就是一个轻量级的数据库，因此我们只需要按照配置数据库的方式对它配置就行了。这里以mybatis为例</p>
+<h3 id="xml配置">xml配置</h3>
+<p>在spring的xml配置文件中加入下面几个bean，其中url的value为<code>jdbc:sqlite:SQLite数据库文件的绝对路径</code></p>
+<pre><code>&lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;
+    &lt;property name=&quot;driverClassName&quot; value=&quot;org.sqlite.JDBC&quot; /&gt;
+    &lt;property name=&quot;url&quot; value=&quot;jdbc:sqlite:/opt/applog/MskyLog/UmeInfoClientCache.db&quot; /&gt;
+    &lt;!-- 初始化连接大小 --&gt;
+    &lt;property name=&quot;initialSize&quot; value=&quot;10&quot; /&gt;
+    &lt;!-- 连接池最大数量 --&gt;
+    &lt;property name=&quot;maxActive&quot; value=&quot;10&quot; /&gt;
+    &lt;!-- 连接池最大空闲 --&gt;
+    &lt;property name=&quot;maxIdle&quot; value=&quot;10&quot; /&gt;
+    &lt;!-- 连接池最小空闲 --&gt;
+    &lt;property name=&quot;minIdle&quot; value=&quot;1&quot; /&gt;
+    &lt;!-- 获取连接最大等待时间 --&gt;
+    &lt;property name=&quot;maxWait&quot; value=&quot;3600&quot; /&gt;
+&lt;/bean&gt;
+
+
+&lt;!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 --&gt;
+&lt;bean id=&quot;sqlSessionFactory&quot; class=&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;&gt;
+    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot; /&gt;
+    &lt;!-- 自动扫描mapping.xml文件，**表示迭代查找 --&gt;
+    &lt;property name=&quot;mapperLocations&quot; value=&quot;classpath:sqlmap/*Mapper.xml&quot; /&gt;
+&lt;/bean&gt;
+
+&lt;!-- DAO接口所在包名，Spring会自动查找其下的类 ,包下的类需要使用@MapperScan注解,否则容器注入会失败 --&gt;
+&lt;bean class=&quot;org.mybatis.spring.mapper.MapperScannerConfigurer&quot;&gt;
+    &lt;property name=&quot;basePackage&quot; value=&quot;com.umetrip.infoclient.dao&quot; /&gt;
+    &lt;property name=&quot;sqlSessionFactoryBeanName&quot; value=&quot;sqlSessionFactory&quot; /&gt;
+&lt;/bean&gt;
+
+&lt;!-- (事务管理)transaction manager, use JtaTransactionManager for global tx --&gt;
+&lt;bean id=&quot;transactionManager&quot; class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;
+    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot; /&gt;
+&lt;/bean&gt;
+</code></pre>
+<h3 id="mapper类和xml">Mapper类和xml</h3>
+<p>这部分就是mybatis的配置，新建一个接口类</p>
+<pre><code>@MapperScan
+public interface CacheMapper {
+
+     boolean replace(EhCachePersistenceBean bean);
+
+     List&lt;EhCachePersistenceBean&gt; getAll();
+
+     void init();
+
+}
+</code></pre>
+<p>然后在对应的xml中加入接口对应的sql</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE mapper
+        PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;
+        &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
+
+&lt;!--ehcache数据持久化专用--&gt;
+
+&lt;mapper namespace=&quot;com.umetrip.infoclient.dao.CacheMapper&quot;&gt;
+    &lt;resultMap id=&quot;CacheMap&quot; type=&quot;com.umetrip.infocenter.entity.EhCachePersistenceBean&quot;&gt;
+        &lt;result column=&quot;cacheName&quot; jdbcType=&quot;VARCHAR&quot;/&gt;
+        &lt;result column=&quot;primaryKey&quot; jdbcType=&quot;VARCHAR&quot;/&gt;
+        &lt;result column=&quot;cacheValue&quot; jdbcType=&quot;VARCHAR&quot;/&gt;
+    &lt;/resultMap&gt;
+
+    &lt;insert id=&quot;replace&quot; parameterType=&quot;com.umetrip.infocenter.entity.EhCachePersistenceBean&quot;&gt;
+        REPLACE INTO EHCACHE_PERSISTENCE
+        (CACHENAME,PRIMARYKEY,CACHEVALUE)
+        VALUES
+        (#{cacheName},#{primaryKey},#{cacheValue})
+    &lt;/insert&gt;
+
+    &lt;select id=&quot;getAll&quot; resultMap=&quot;CacheMap&quot;&gt;
+       SELECT
+       CHACHENAME,PRIMARYKEY,CACHEVALUE
+       FROM
+       EHCACHE_PERSISTENCE
+    &lt;/select&gt;
+
+    &lt;update id=&quot;init&quot;&gt;
+        CREATE TABLE IF NOT EXISTS EHCACHE_PERSISTENCE(
+          CACHENAME VARCHAR(100),
+          PRIMARYKEY VARCHAR(50),
+          CACHEVALUE TEXT,
+          constraint EHCACHE_PERSISTENCE_pk
+              primary key (CACHENAME, PRIMARYKEY)
+         );
+
+    &lt;/update&gt;
+
+&lt;/mapper&gt;
+</code></pre>
+<p>工程启动时要调用建表的方法，防止新节点没有对应的数据库文件。
+我们可以测试一下</p>
+<pre><code>@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(value = &quot;classpath:applicationContext-infoclient.xml&quot;)
+public class TestMapper {
+
+    @Autowired
+    private CacheMapper cacheMapper;
+
+    @Test
+    public void testInit(){
+        cacheMapper.init();
+    }
+}
+</code></pre>
+<p>执行完testInit()方法后可以看到UmeInfoClientCache.db已经在/opt/applog/MskyLog/路径下存在了，用客户端打开db文件可以看到相应的表结构</p>
+<p>以上就是SQLite简单的使用方法。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Databus Mysql保存MaxScn的算法]]></title>
         <id>https://zbx1719.github.io/post/qe9tUw9-p</id>
@@ -757,102 +919,6 @@ make &amp;&amp; make install</p>
 </li>
 </ol>
 <p>参考链接: http://blog.csdn.net/zhongruixian/article/details/21076405</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[解决编译安装erlang时ncurses缺失]]></title>
-        <id>https://zbx1719.github.io/post/bap-TsKFj</id>
-        <link href="https://zbx1719.github.io/post/bap-TsKFj">
-        </link>
-        <updated>2017-11-14T06:56:59.000Z</updated>
-        <summary type="html"><![CDATA[<p>公司的服务器无法访问外网,因此需要下载好软件后传到服务器上进行编译
-安装erlang时出现了如下问题</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>公司的服务器无法访问外网,因此需要下载好软件后传到服务器上进行编译
-安装erlang时出现了如下问题</p>
-<!-- more -->
-<pre><code>checking for tgetent in -ltinfo... no
-checking for tgetent in -lncurses... no
-checking for tgetent in -lcurses... no
-checking for tgetent in -ltermcap... no
-checking for tgetent in -ltermlib... no
-configure: error: No curses library functions found
-configure: error: /bin/sh '/home/jboss5/umechat/otp_src_19.3/erts/configure' failed for erts
-</code></pre>
-<p>原因:
-缺少ncurses安装包</p>
-<p>因此到<a href="http://ftp.gnu.org/gnu/ncurses/">这里</a>下载ncuroses.
-我选择的是最新版<a href="http://ftp.gnu.org/gnu/ncurses/ncurses-6.0.tar.gz">ncurses-6.0.tar.gz</a>
-执行以下命令:</p>
-<pre><code>tar -zxvf ncurses-6.0.tar.gz
-cd ncurses-6.0
-./configure --with-shared --without-debug --without-ada --enable-overwrite
-make
-make install
-</code></pre>
-<p>ncurses完成安装后再次安装erlang即可</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[在Ubuntu Server下安装Dropbox]]></title>
-        <id>https://zbx1719.github.io/post/NlzgV9ZB5</id>
-        <link href="https://zbx1719.github.io/post/NlzgV9ZB5">
-        </link>
-        <updated>2017-10-18T22:00:54.000Z</updated>
-        <summary type="html"><![CDATA[<p>服务器和本地之间要同步东西,总是用ftp挺烦的.发现Dropbox有Linux server版,刚好服务器处于海外不需要翻墙,于是安装一个用来同步文件.</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>服务器和本地之间要同步东西,总是用ftp挺烦的.发现Dropbox有Linux server版,刚好服务器处于海外不需要翻墙,于是安装一个用来同步文件.</p>
-<!-- more -->
-<h2 id="安装">安装</h2>
-<h3 id="安装主程序">安装主程序</h3>
-<p>通过命令行下载安装Dropbox</p>
-<pre><code>cd ~ &amp;&amp; wget -O - &quot;https://www.dropbox.com/download?plat=lnx.x86_64&quot; | tar xzf -
-</code></pre>
-<p>安装完成后启动dropbox</p>
-<pre><code>~/.dropbox-dist/dropboxd
-</code></pre>
-<p>如果是首次在服务器上运行 Dropbox，系统会要求将链接复制并粘贴到运行的浏览器中，以便创建一个新的帐户或将服务器附加到现有帐户上。操作完成后，系统会在主目录中创建 Dropbox 文件夹。</p>
-<h3 id="下载控制脚本">下载控制脚本</h3>
-<p>安装完成后下载这个<a href="https://www.dropbox.com/download?dl=packages/dropbox.py">python脚本</a>用来控制Dropbox.</p>
-<p>脚本参数如下:</p>
-<pre><code>status       查看Dropbox状态
-throttle     设置带宽限制
-help         提供帮助
-puburl       获取public文件分享链接
-stop         停止dropbox
-running      返回dropbox运行状态
-start        启动dropbox
-filestatus   获取文件同步状态
-ls           列出当前目录同步状态
-autostart    登录时自动启动dropbox
-exclude      不同步的文件或文件夹
-lansync      开启/关闭 lan 同步
-sharelink    分享链接
-proxy        设置代理
-</code></pre>
-<h2 id="使用方法">使用方法</h2>
-<h3 id="查看状态">查看状态</h3>
-<p>在命令行中输入</p>
-<pre><code>python dropbox.py filestatus
-</code></pre>
-<p>可查看当前同步状态</p>
-<pre><code>.dropbox:       unwatched
-cat.sql:        up to date
-dropbox.py:     syncing
-project:        syncing
-sendmail:       syncing
-Works:          syncing
-个人文件:        syncing
-</code></pre>
-<h3 id="排除不需要同步的文件文件夹">排除不需要同步的文件/文件夹</h3>
-<p>在Dropbox/ 下输入以下命令</p>
-<pre><code>python dropbox.py add 被排除的文件名
-</code></pre>
-<p>即可将该文件排除.</p>
-<p>取消排除</p>
-<pre><code>python dropbox.py remove 被排除的文件名
-</code></pre>
-<p>则可以重新同步该文件</p>
 ]]></content>
     </entry>
 </feed>

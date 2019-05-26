@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>PostgreSQL | 杂记</title>
+<meta name="description" content="温故而知新">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="/Users/zhubingxu/SynologyDrive/博客/output/favicon.ico?v=1558854858866">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="/Users/zhubingxu/SynologyDrive/博客/output/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="/Users/zhubingxu/SynologyDrive/博客/output">
+        <img src="/Users/zhubingxu/SynologyDrive/博客/output/images/avatar.png?v=1558854858866" class="site-logo">
+        <h1 class="site-title">杂记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output//index.html" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/archives/index.html" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/tags/index.html" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/about/index.html" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="/Users/zhubingxu/SynologyDrive/博客/output/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <h2 class="current-tag">标签: PostgreSQL</h2>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/debezium-bu-shu-postgresql/index.html">
+                  <h2 class="post-title">Debezium部署(PostgreSQL)</h2>
+                </a>
+                <div class="post-date">
+                  2018-06-05
+                </div>
+                <div class="post-abstract">
+                  <p>debezium是一个用于抓取数据库变更事件的开源项目,它可以将数据实时的从数据库中抽取出来并通过kafka connect推送到kafka中.每一个部署到 Kafka的连接器都可以通过一个或者多个主题( 每个数据库表通常有一个主题) 捕获所有的变更并记录在一个或者多个服务器上。 Kafka 确保所有这些数据更改事件被复制和完全有序，并且允许许多客户端独立使用这些相同的数据</p>
+
+                </div>
+              </div>
+              
+            </article>
+          
+
+          <div class="pagination-container">
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

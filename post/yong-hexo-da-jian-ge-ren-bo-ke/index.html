@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>用Hexo搭建个人博客 | 杂记</title>
+<meta name="description" content="温故而知新">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="/Users/zhubingxu/SynologyDrive/博客/output/favicon.ico?v=1558854858866">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="/Users/zhubingxu/SynologyDrive/博客/output/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="/Users/zhubingxu/SynologyDrive/博客/output">
+        <img src="/Users/zhubingxu/SynologyDrive/博客/output/images/avatar.png?v=1558854858866" class="site-logo">
+        <h1 class="site-title">杂记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output//index.html" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/archives/index.html" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/tags/index.html" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/about/index.html" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="/Users/zhubingxu/SynologyDrive/博客/output/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">用Hexo搭建个人博客</h2>
+            <div class="post-date">2017-10-19</div>
+            
+            <div class="post-content">
+              <p>有了VPS,可以用来科学上网,也可以搭建一个博客写一些东西.比较了各种博客框架最后选择了Hexo搭建博客.</p>
+<!-- more -->
+<h2 id="准备">准备</h2>
+<ul>
+<li>
+<p>VPS</p>
+<pre><code>  系统不限,我采用的是Ubuntu 17.0.4
+</code></pre>
+</li>
+<li>
+<p>域名</p>
+<pre><code>  随便一个域名都行,没什么硬性要求
+</code></pre>
+</li>
+</ul>
+<h2 id="环境配置">环境配置</h2>
+<h3 id="安装nodejs">安装node.js</h3>
+<p>Hexo依赖node.js环境,因此我们需要先配置好node.js.
+在命令行下输入</p>
+<pre><code>    sudo apt-get update
+    sudo apt-get install -y python-software-properties software-properties-common  
+    sudo  add-apt-repository ppa:chris-lea/node.js  
+    sudo apt-get update  
+    sudo apt-get install nodejs 
+    sudo apt install nodejs-legacy
+</code></pre>
+<p>完成安装</p>
+<h3 id="安装git">安装Git</h3>
+<p>在命令行下输入</p>
+<pre><code>sudo apt-get install git
+</code></pre>
+<p>进行安装</p>
+<h2 id="搭建hexo">搭建Hexo</h2>
+<h4 id="安装">安装</h4>
+<p>命令行下输入</p>
+<pre><code>npm install -g hexo-cli
+</code></pre>
+<p>安装 Hexo 完成后，执行下列命令，Hexo 将会在指定文件夹中新建所需要的文件。</p>
+<pre><code>$ hexo init &lt;folder&gt;
+$ cd &lt;folder&gt;
+$ npm install
+</code></pre>
+<p>新建完成后，指定文件夹的目录如下：</p>
+<pre><code>.
+├── _config.yml
+├── package.json
+├── scaffolds
+├── source
+|   ├── _drafts
+|   └── _posts
+└── themes    
+</code></pre>
+<p>在命令行下输入</p>
+<pre><code>hexo server
+</code></pre>
+<p>然后登录http://127.0.0.1:4000 即可查看效果
+<img src="/Users/zhubingxu/SynologyDrive/%E5%8D%9A%E5%AE%A2/output/post-images/1558853479160.jpeg" alt=""></p>
+<h2 id="hexo的使用">Hexo的使用</h2>
+<h4 id="新建一篇文章">新建一篇文章</h4>
+<p>在创建的hexo根目录下输入以下命令</p>
+<pre><code>hexo new &quot;new page&quot;
+</code></pre>
+<p>即可在 source/_posts 目录下创建一篇新文章 new_page.md
+通过文本编辑器打开,可修改添加以下的配置</p>
+<pre><code>---
+title: 用Hexo搭建个人博客 #文章标题
+date: 2017-10-19 02:40:36 #文章生成时间
+categories: 服务器 #文章的分类,可忽略
+tags: #文章标签,可忽略
+- Hexo
+- Linux
+description:#你对本页的描述,可忽略
+---
+</code></pre>
+<p>写文章需要使用markdown语法,如果不知道markdown语法是什么可以参考<a href="https://sspai.com/25137/">这里</a></p>
+<h4 id="更换主题">更换主题</h4>
+<p>以next主题为例在hexo的目录下输入</p>
+<pre><code>git clone --branch v5.1.2 https://github.com/iissnan/hexo-theme-next themes/next
+</code></pre>
+<p>然后打开_config.yml文件,修改theme字段.
+更多主题及配置参考<a href="https://hexo.io/themes/">这里</a></p>
+
+            </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

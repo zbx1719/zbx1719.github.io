@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Debezium部署(PostgreSQL) | 杂记</title>
+<meta name="description" content="温故而知新">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="/Users/zhubingxu/SynologyDrive/博客/output/favicon.ico?v=1558854858866">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="/Users/zhubingxu/SynologyDrive/博客/output/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="/Users/zhubingxu/SynologyDrive/博客/output">
+        <img src="/Users/zhubingxu/SynologyDrive/博客/output/images/avatar.png?v=1558854858866" class="site-logo">
+        <h1 class="site-title">杂记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output//index.html" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/archives/index.html" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/tags/index.html" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/about/index.html" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="/Users/zhubingxu/SynologyDrive/博客/output/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Debezium部署(PostgreSQL)</h2>
+            <div class="post-date">2018-06-05</div>
+            
+            <div class="post-content">
+              <p>debezium是一个用于抓取数据库变更事件的开源项目,它可以将数据实时的从数据库中抽取出来并通过kafka connect推送到kafka中.每一个部署到 Kafka的连接器都可以通过一个或者多个主题( 每个数据库表通常有一个主题) 捕获所有的变更并记录在一个或者多个服务器上。 Kafka 确保所有这些数据更改事件被复制和完全有序，并且允许许多客户端独立使用这些相同的数据</p>
+<!-- more -->
+<h2 id="准备">准备</h2>
+<p>部署debezium有几点要求:</p>
+<ul>
+<li>PostgreSQL版本9.4+</li>
+<li>kafka版本0.9.0+</li>
+</ul>
+<p>PostgreSQL版本需要升级到9.4以上是因为从9.4版本开始,PostgreSQL引入了logical decoding 功能,它允许第三方逻辑解码插件将它的事务日志输出.
+kafka 在0.9.0版本后支持kafka connect,debezium本质上是kafka connect插件,因此需要有kafka connect的支持.</p>
+<h2 id="数据库配置">数据库配置</h2>
+<p>在部署debezium前需要对PostgreSQL进行配置.我使用的是9.4版本的库.debezium支持两个逻辑解码插件
+<a href="https://github.com/debezium/postgres-decoderbufs">Protobuf based</a>和<a href="https://github.com/eulerto/wal2json">wal2json</a>.因为Protobuf based要求数据库版本在9.6以上,因此我采用了wal2json配置.</p>
+<h3 id="编译安装">编译安装</h3>
+<pre><code># 通过从github上下载插件源码
+$ git clone https://github.com/eulerto/wal2json.git
+# 编译安装插件
+$ PATH=/path/to/bin/pg_config:$PATH
+$ USE_PGXS=1 make
+$ USE_PGXS=1 make install
+</code></pre>
+<h3 id="修改配置">修改配置</h3>
+<h4 id="postgresqlconf">postgresql.conf</h4>
+<p>需要修改以下配置</p>
+<pre><code>listen_addresses = '*'  
+wal_level = logical
+max_replication_slots = 1
+max_wal_senders = 1
+# MODULES
+shared_preload_libraries = 'wal2json'
+</code></pre>
+<p>max_replication_slots,max_wal_senders两项配置可以根据需求来调大.配置修改后需要重启数据库使配置生效</p>
+<h3 id="pg_hbaconf">pg_hba.conf</h3>
+<pre><code># TYPE  DATABASE        USER            ADDRESS                 METHOD
+host    all             all             0.0.0.0/0               md5
+# &quot;local&quot; is for Unix domain socket connections only
+local   all             all                                     peer
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            ident
+# IPv6 local connections:
+host    all             all             ::1/128                 ident
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+local   replication     postgres                                trust
+host    replication     postgres        127.0.0.1/32            trust
+host    replication     postgres        ::1/128                 trust
+
+#wal2json
+local    replication     all                     trust
+</code></pre>
+<p>修改后重启数据库生效</p>
+<h2 id="debezium部署">debezium部署</h2>
+<ol>
+<li>
+<p>下载<a href="https://www.confluent.io/download/">confluent</a>,解压到任意目录下.</p>
+</li>
+<li>
+<p>下载<a href="https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/0.7.5/debezium-connector-postgres-0.7.5-plugin.tar.gz">Postgres Connector plugin archive</a>,解压后放到confluent目录的 share/java/ 路径下.解压后的包名为debezium-connector-postgres</p>
+</li>
+<li>
+<p>创建debezium配置文件debezium.properties:</p>
+<pre><code> name=events-debezium
+ tasks.max=1
+ connector.class=io.debezium.connector.postgresql.PostgresConnector
+ database.hostname=localhost
+ database.port=5432
+ database.user=postgres
+ database.password=postgres
+ database.dbname=postgres
+ database.history.kafka.bootstrap.servers=localhost:9092
+ database.server.id=1
+ database.server.name=postgres.localhost
+ plugin.name=wal2json
+ include.schema.changes=true
+</code></pre>
+</li>
+<li>
+<p>进入confluent目录下,启动zookeeper:</p>
+<pre><code> sudo bin/zookeeper-server-start -daemon etc/kafka/zookeeper.properties
+</code></pre>
+</li>
+<li>
+<p>启动kafka:</p>
+<pre><code> sudo bin/kafka-server-start -daemon etc/kafka/server.properties
+</code></pre>
+</li>
+<li>
+<p>启动kafka connect:</p>
+<pre><code> sudo bin/connect-standalone etc/kafka/connect-standalone.properties etc/kafka-connect-postgres/debezium.properties
+</code></pre>
+</li>
+<li>
+<p>kafka connect启动后会为每一张表建立一个topic,通过kafka consumer命令监听某一个topic,然后进行update操作,可以看到:</p>
+<pre><code> {&quot;schema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;a&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;b&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.time.NanoTimestamp&quot;,&quot;version&quot;:1,&quot;field&quot;:&quot;c&quot;}],&quot;optional&quot;:true,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Value&quot;,&quot;field&quot;:&quot;before&quot;},{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;a&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;b&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.time.NanoTimestamp&quot;,&quot;version&quot;:1,&quot;field&quot;:&quot;c&quot;}],&quot;optional&quot;:true,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Value&quot;,&quot;field&quot;:&quot;after&quot;},{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;version&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;name&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;ts_usec&quot;},{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;txId&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;lsn&quot;},{&quot;type&quot;:&quot;boolean&quot;,&quot;optional&quot;:true,&quot;default&quot;:false,&quot;field&quot;:&quot;snapshot&quot;},{&quot;type&quot;:&quot;boolean&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;last_snapshot_record&quot;}],&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.connector.postgresql.Source&quot;,&quot;field&quot;:&quot;source&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;op&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;ts_ms&quot;}],&quot;optional&quot;:false,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Envelope&quot;},&quot;payload&quot;:{&quot;before&quot;:{&quot;a&quot;:6,&quot;b&quot;:null,&quot;c&quot;:1526983438558366000},&quot;after&quot;:null,&quot;source&quot;:{&quot;version&quot;:&quot;0.7.5&quot;,&quot;name&quot;:&quot;postgres.localhost&quot;,&quot;ts_usec&quot;:1528103530924231000,&quot;txId&quot;:1927,&quot;lsn&quot;:24850324,&quot;snapshot&quot;:false,&quot;last_snapshot_record&quot;:null},&quot;op&quot;:&quot;d&quot;,&quot;ts_ms&quot;:1528103530926}}
+ {&quot;schema&quot;:null,&quot;payload&quot;:null}
+ {&quot;schema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;a&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;b&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.time.NanoTimestamp&quot;,&quot;version&quot;:1,&quot;field&quot;:&quot;c&quot;}],&quot;optional&quot;:true,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Value&quot;,&quot;field&quot;:&quot;before&quot;},{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;a&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;b&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.time.NanoTimestamp&quot;,&quot;version&quot;:1,&quot;field&quot;:&quot;c&quot;}],&quot;optional&quot;:true,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Value&quot;,&quot;field&quot;:&quot;after&quot;},{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;version&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;name&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;ts_usec&quot;},{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;txId&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;lsn&quot;},{&quot;type&quot;:&quot;boolean&quot;,&quot;optional&quot;:true,&quot;default&quot;:false,&quot;field&quot;:&quot;snapshot&quot;},{&quot;type&quot;:&quot;boolean&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;last_snapshot_record&quot;}],&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.connector.postgresql.Source&quot;,&quot;field&quot;:&quot;source&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;op&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;ts_ms&quot;}],&quot;optional&quot;:false,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Envelope&quot;},&quot;payload&quot;:{&quot;before&quot;:null,&quot;after&quot;:{&quot;a&quot;:7,&quot;b&quot;:&quot;Replication&quot;,&quot;c&quot;:1526983438558366000},&quot;source&quot;:{&quot;version&quot;:&quot;0.7.5&quot;,&quot;name&quot;:&quot;postgres.localhost&quot;,&quot;ts_usec&quot;:1528103530924231000,&quot;txId&quot;:1927,&quot;lsn&quot;:24850324,&quot;snapshot&quot;:false,&quot;last_snapshot_record&quot;:null},&quot;op&quot;:&quot;c&quot;,&quot;ts_ms&quot;:1528103530926}}
+</code></pre>
+</li>
+</ol>
+<p>第一个json是update前的,其中payload是update前的值.</p>
+<pre><code>{&quot;before&quot;:{&quot;a&quot;:6,&quot;b&quot;:null,&quot;c&quot;:1526983438558366000},&quot;after&quot;:null,&quot;source&quot;:{&quot;version&quot;:&quot;0.7.5&quot;,&quot;name&quot;:&quot;postgres.localhost&quot;,&quot;ts_usec&quot;:1528103530924231000,&quot;txId&quot;:1927,&quot;lsn&quot;:24850324,&quot;snapshot&quot;:false,&quot;last_snapshot_record&quot;:null},&quot;op&quot;:&quot;d&quot;,&quot;ts_ms&quot;:1528103530926}
+</code></pre>
+<p>最后一个json是update后的,payload中是update后的值.</p>
+<pre><code>{&quot;before&quot;:null,&quot;after&quot;:{&quot;a&quot;:7,&quot;b&quot;:&quot;Replication&quot;,&quot;c&quot;:1526983438558366000},&quot;source&quot;:{&quot;version&quot;:&quot;0.7.5&quot;,&quot;name&quot;:&quot;postgres.localhost&quot;,&quot;ts_usec&quot;:1528103530924231000,&quot;txId&quot;:1927,&quot;lsn&quot;:24850324,&quot;snapshot&quot;:false,&quot;last_snapshot_record&quot;:null},&quot;op&quot;:&quot;c&quot;,&quot;ts_ms&quot;:1528103530926}
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="/Users/zhubingxu/SynologyDrive/博客/output/tag/T6oudVYYW/index.html" class="tag">
+                    Debezium
+                  </a>
+                
+                  <a href="/Users/zhubingxu/SynologyDrive/博客/output/tag/E_x3Cz7Hn/index.html" class="tag">
+                    PostgreSQL
+                  </a>
+                
+                  <a href="/Users/zhubingxu/SynologyDrive/博客/output/tag/MEs3-c6b5/index.html" class="tag">
+                    Java
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/ehcache-chi-jiu-hua-dao-ying-pan-index-diu-shi-wen-ti/index.html">
+                  <h3 class="post-title">
+                     ehcache持久化到硬盘index丢失问题
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

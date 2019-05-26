@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Databus部署(MYSQL) | 杂记</title>
+<meta name="description" content="温故而知新">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="/Users/zhubingxu/SynologyDrive/博客/output/favicon.ico?v=1558854858866">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="/Users/zhubingxu/SynologyDrive/博客/output/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="/Users/zhubingxu/SynologyDrive/博客/output">
+        <img src="/Users/zhubingxu/SynologyDrive/博客/output/images/avatar.png?v=1558854858866" class="site-logo">
+        <h1 class="site-title">杂记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output//index.html" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/archives/index.html" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/tags/index.html" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/about/index.html" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="/Users/zhubingxu/SynologyDrive/博客/output/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Databus部署(MYSQL)</h2>
+            <div class="post-date">2017-12-19</div>
+            
+            <div class="post-content">
+              <p>Databus是一个由LinkedIn开源的低延迟、可靠的、支持事务的、保持一致性的数据变更抓取系统。它有以下特点:</p>
+<ul>
+<li><strong>来源独立</strong>：Databus支持多种数据来源的变更抓取，包括Oracle和MySQL。</li>
+<li><strong>可扩展、高度可用</strong>：Databus能扩展到支持数千消费者和事务数据来源，同时保持高度可用性。</li>
+<li><strong>事务按序提交</strong>：Databus能保持来源数据库中的事务完整性，并按照事务分组和来源的提交顺寻交付变更事件。</li>
+<li><strong>低延迟、支持多种订阅机制</strong>：数据源变更完成后，Databus能在毫秒级内将事务提交给消费者。同时，消费者使用Databus中的服务器端过滤功能，可以只获取自己需要的特定数据。</li>
+<li><strong>无限回溯</strong>：对消费者支持无限回溯能力，例如当消费者需要产生数据的完整拷贝时，它不会对数据库产生任何额外负担。当消费者的数据大大落后于来源数据库时，也可以使用该功能。</li>
+</ul>
+<!-- more -->
+<h1 id="部署">部署</h1>
+<h2 id="gradle安装">gradle安装</h2>
+<p>Databus采用gradle编译,因此在编译前需要安装gradle</p>
+<p>macOS安装gradle方法:</p>
+<pre><code>brew install gradle
+</code></pre>
+<p>安装完成后输入 gradle -version 如果出现以下信息则安装成功</p>
+<pre><code>------------------------------------------------------------
+Gradle 4.3.1
+------------------------------------------------------------
+
+Build time:   2017-11-08 08:59:45 UTC
+Revision:     e4f4804807ef7c2829da51877861ff06e07e006d
+
+Groovy:       2.4.12
+Ant:          Apache Ant(TM) version 1.9.6 compiled on June 29 2015
+JVM:          1.8.0_131 (Oracle Corporation 25.131-b11)
+OS:           Mac OS X 10.13.2 x86_64
+</code></pre>
+<h2 id="数据库配置">数据库配置</h2>
+<p>安装mysql数据库.我使用的是5.5.56版本.高版本可能会有问题.
+数据库要开启binlog,查看是否开启的方法是</p>
+<pre><code>  SHOW VARIABLES LIKE 'log_bin';
+</code></pre>
+<p>如果没有开启可以用</p>
+<pre><code>SET SQL_LOG_BIN=1;
+</code></pre>
+<p>来开启.</p>
+<p>将数据库binlog_format设置成ROW.查看binlog_format方法为</p>
+<pre><code>SHOW VARIABLES LIKE 'binlog_format';
+</code></pre>
+<p>设置方法为</p>
+<pre><code>SET GLOBLE binlog_format =ROW;
+</code></pre>
+<p>将 binlog_checksum 设置为空.查看方法为</p>
+<pre><code>SHOW GLOBAL VARIABLES LIKE 'binlog_checksum';
+</code></pre>
+<p>设置方法为</p>
+<pre><code>SET binlog_checksum=NONE;
+</code></pre>
+<p>在mysql上创建名为or_test的数据库</p>
+<pre><code>CREATE DATABASE or_test;
+</code></pre>
+<p>并在or_test上创建名为person的表:</p>
+<pre><code>CREATE TABLE person
+(
+id INT(11) PRIMARY KEY NOT NULL,
+first_name VARCHAR(120) NOT NULL,
+last_name VARCHAR(120) NOT NULL,
+birth_date DATE,
+deleted VARCHAR(5) NOT NULL
+);
+</code></pre>
+<h2 id="源码配置">源码配置</h2>
+<p>先下载源码</p>
+<pre><code>git clone  https://github.com/linkedin/databus/
+</code></pre>
+<p>复制 <a href="databus-demo/ojdbc6-11.2.0.2.0.jar">ojdbc.jar</a>到 sandbox-repo/com/oracle/ojdbc6/11.2.0.2.0/ 路径下</p>
+<p>打开</p>
+<pre><code>databus-core/databus-core-container/src/main/java/com/linkedin/databus2/core/container/netty/ServerContainer.java
+</code></pre>
+<p>在 initializeContainerJmx() 方法中加入下面这句</p>
+<pre><code>LocateRegistry.createRegistry(_containerStaticConfig.getJmx().getRmiRegistryPort());
+</code></pre>
+<p>不加的话会报 Cannot bind to URL rmi://localhost:1099 ServiceUnavailableException</p>
+<p>加完后结果如下</p>
+<pre><code>protected void initializeContainerJmx()
+{
+
+if (_containerStaticConfig.getJmx().isRmiEnabled())
+{
+try
+{
+  JMXServiceURL jmxServiceUrl =
+      new JMXServiceURL(&quot;service:jmx:rmi://&quot; +
+                        _containerStaticConfig.getJmx().getJmxServiceHost() + &quot;:&quot; +
+                        _containerStaticConfig.getJmx().getJmxServicePort() +&quot;/jndi/rmi://&quot; +
+                        _containerStaticConfig.getJmx().getRmiRegistryHost() + &quot;:&quot; +
+                        _containerStaticConfig.getJmx().getRmiRegistryPort() + &quot;/jmxrmi&quot; +
+                        _containerStaticConfig.getJmx().getJmxServicePort());
+
+  LocateRegistry.createRegistry(_containerStaticConfig.getJmx().getRmiRegistryPort());
+  _jmxConnServer = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceUrl, null,
+                                                                   getMbeanServer());
+}
+catch (Exception e)
+{
+  LOG.warn(&quot;Unable to instantiate JMX server&quot;, e);
+}
+}
+}
+</code></pre>
+<p>配置被监控表的信息:修改databus2-example-relay-pkg/conf/sources-or-person.json的内容,其中
+URI</p>
+<pre><code>format:mysql://username/password@mysql_host[:mysql_port]/mysql_serverid/binlog_prefix,
+</code></pre>
+<p>注意%2F为转义符,用户名为root,密码为root.其中uri对应着mysql中的库名和表名.</p>
+<pre><code>{
+&quot;name&quot; : &quot;person&quot;,
+&quot;id&quot;  : 1,
+&quot;uri&quot; : &quot;mysql://root%2Froot@localhost:3306/1/mysql-bin&quot;,
+&quot;slowSourceQueryThreshold&quot; : 2000,
+&quot;sources&quot; :
+[
+    {
+    &quot;id&quot; : 40,
+    &quot;name&quot; : &quot;com.linkedin.events.example.or_test.Person&quot;,
+    &quot;uri&quot;: &quot;or_test.person&quot;,
+    &quot;partitionFunction&quot; : &quot;constant:1&quot;
+     }
+]
+}
+</code></pre>
+<p>databus2-example-relay-pkg/schemas_registry/下定义person的Avro schema文件com.linkedin.events.example.or_test.Person.1.avsc，其中1表示版本(Databus目前没有针对mysql提供生成Avro schema文件的工具，所以只能手工编写)具体内容如下所示：</p>
+<pre><code>{
+  &quot;name&quot; : &quot;Person_V1&quot;,
+  &quot;doc&quot; : &quot;Auto-generated Avro schema for sy$person. Generated at Dec 04, 2012 05:07:05 PM PST&quot;,
+  &quot;type&quot; : &quot;record&quot;,
+  &quot;meta&quot; : &quot;dbFieldName=person;pk=id;&quot;,
+  &quot;namespace&quot; : &quot;com.linkedin.events.example.or_test&quot;,
+  &quot;fields&quot; : [ {
+    &quot;name&quot; : &quot;id&quot;,
+    &quot;type&quot; : [ &quot;long&quot;, &quot;null&quot; ],
+    &quot;meta&quot; : &quot;dbFieldName=ID;dbFieldPosition=0;&quot;
+  }, {
+    &quot;name&quot; : &quot;firstName&quot;,
+    &quot;type&quot; : [ &quot;string&quot;, &quot;null&quot; ],
+    &quot;meta&quot; : &quot;dbFieldName=FIRST_NAME;dbFieldPosition=1;&quot;
+  }, {
+    &quot;name&quot; : &quot;lastName&quot;,
+    &quot;type&quot; : [ &quot;string&quot;, &quot;null&quot; ],
+    &quot;meta&quot; : &quot;dbFieldName=LAST_NAME;dbFieldPosition=2;&quot;
+  }, {
+    &quot;name&quot; : &quot;birthDate&quot;,
+    &quot;type&quot; : [ &quot;long&quot;, &quot;null&quot; ],
+    &quot;meta&quot; : &quot;dbFieldName=BIRTH_DATE;dbFieldPosition=3;&quot;
+  }, {
+    &quot;name&quot; : &quot;deleted&quot;,
+    &quot;type&quot; : [ &quot;string&quot;, &quot;null&quot; ],
+    &quot;meta&quot; : &quot;dbFieldName=DELETED;dbFieldPosition=4;&quot;
+  } ]
+}
+</code></pre>
+<p>注册Avro schema到index.schemas_registry文件databus2-example-relay-pkg/schemas_registry/index.schemas_registry文件中,
+添加行com.linkedin.events.example.or_test.Person.1.avsc ，每定义一个Avro schema都需要添加进去，relay运行时会到此文件中查找表对应的定义的Avro schema。</p>
+<h2 id="部署启动">部署启动</h2>
+<p>进入databus根目录执行命令gradle -Dopen_source=true assemble即可完成build,成功后在databus根目录下生成名为build的文件夹</p>
+<h3 id="启动relay">启动Relay:</h3>
+<ul>
+<li>cd build/databus2-example-relay-pkg/distributions</li>
+<li>tar -zxvf databus2-example-relay-pkg.tar.gz解压</li>
+<li>执行启动脚本 ./bin/start-example-relay.sh or_person -Y ./conf/sources-or-person.json</li>
+<li>执行命令 curl -s http://localhost:11115/sources 返回如下内容说明启动成功：</li>
+</ul>
+<h3 id="启动-client">启动 Client:</h3>
+<ul>
+<li>cd build/databus2-example-client-pkg/distributions</li>
+<li>tar -zxvf databus2-example-client-pkg.tar.gz解压</li>
+<li>执行启动脚本 ./bin/start-example-client.sh person
+执行命令 curl http://localhost:11115/relayStats/outbound/http/clients 返回如下内容说明启动成功：</li>
+</ul>
+<h2 id="测试">测试</h2>
+<p>Relay和Client启动成功后，就已经开始对person表进行数据变更捕获了，现在向person表插入一条数据:</p>
+<pre><code>INSERT person VALUES (1,'zhangsan','lisi',20371231235959,0);
+</code></pre>
+<p>databus2-example-relay-pkg/distributions/logs下的relay.log记录如下:</p>
+<pre><code>2017-12-19 18:44:01,356 +148827 [ORListener_person] (INFO) {OpenReplicator_person} BEGIN sql: BEGIN
+2017-12-19 18:44:01,357 +148828 [ORListener_person] (INFO) {OpenReplicator_person} startXtionQueryEvent[header=BinlogEventV4HeaderImpl[timestamp=1513680243000,eventType=2,serverId=1,eventLength=71,nextPosition=596,flags=8,timestampOfReceipt=1513680241355],threadId=1,elapsedTime=0,databaseNameLength=7,errorCode=0,statusVariablesLength=26,statusVariables=[QFlags2Code[flags=0], QSQLModeCode[sqlMode=2097152], QCatalogNzCode[catalogName=std], QCharsetCode[characterSetClient=33,collationConnection=33,collationServer=8]],databaseName=or_test,sql=BEGIN]
+2017-12-19 18:44:01,357 +148828 [ORListener_person] (INFO) {DatabusThreadBase} Starting source: or_test.person
+2017-12-19 18:44:01,357 +148828 [ORListener_person] (INFO) {DatabusThreadBase} INSERT INTO or_test.person
+2017-12-19 18:44:01,359 +148830 [transactionWriter] (INFO) {person} src:com.linkedin.events.example.or_test.Person(40) #src:1 #evt:1 scn:34359739022 ms:-1 sizeInBytes:28 msEvent:1 msTimeElapsed:0 msQueryExec:-1 prodRate:0.00 consRate:-28.00
+2017-12-19 18:44:01,363 +148834 [transactionWriter] (INFO) {person} src:person(0) #src:1 #evt:1 scn:34359739022 ms:-1 sizeInBytes:28 msEvent:1 msTimeElapsed:0 msQueryExec:-1 prodRate:0.00 consRate:-28.00
+</code></pre>
+<p>databus2-example-client-pkg/distributions/logs下的client.log记录如下：</p>
+<pre><code>2017-12-19 18:44:23,444 +443 [callback-1] (INFO) {PersonConsumer} firstName: zhangsan, lastName: lisi, birthDate: 2145801600000, deleted: 0
+</code></pre>
+<p>至此,demo搭建完成.</p>
+<h2 id="参考资料">参考资料</h2>
+<ul>
+<li><a href="https://github.com/linkedin/databus">databus GitHub地址</a></li>
+<li><a href="http://www.jianshu.com/p/9df54eb1ec35">linkedin 的 databus 部署(简书)</a></li>
+<li><a href="http://tech.lede.com/2017/05/24/rd/server/databus/">Databus架构分析与初步实践（for mysql）</a></li>
+</ul>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="/Users/zhubingxu/SynologyDrive/博客/output/tag/i1iz5KHF5/index.html" class="tag">
+                    MySQL
+                  </a>
+                
+                  <a href="/Users/zhubingxu/SynologyDrive/博客/output/tag/GHbcOBabn/index.html" class="tag">
+                    Databus
+                  </a>
+                
+                  <a href="/Users/zhubingxu/SynologyDrive/博客/output/tag/MEs3-c6b5/index.html" class="tag">
+                    Java
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/zai-ubuntu17-shang-an-zhuang-docker/index.html">
+                  <h3 class="post-title">
+                    在Ubuntu17上安装Docker
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

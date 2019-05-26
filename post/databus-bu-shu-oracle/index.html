@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Databus部署(Oracle) | 杂记</title>
+<meta name="description" content="温故而知新">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="/Users/zhubingxu/SynologyDrive/博客/output/favicon.ico?v=1558854858866">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="/Users/zhubingxu/SynologyDrive/博客/output/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="/Users/zhubingxu/SynologyDrive/博客/output">
+        <img src="/Users/zhubingxu/SynologyDrive/博客/output/images/avatar.png?v=1558854858866" class="site-logo">
+        <h1 class="site-title">杂记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output//index.html" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/archives/index.html" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/tags/index.html" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/about/index.html" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="/Users/zhubingxu/SynologyDrive/博客/output/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Databus部署(Oracle)</h2>
+            <div class="post-date">2018-01-12</div>
+            
+            <div class="post-content">
+              <p>databus支持两种数据库:mysql和oracle.mysql采用的是bin-log方式,这种方式配置起来简单.还有一种是oracle.oracle由于没有bin-log机制,因此采用另外的一种方式</p>
+<!-- more -->
+<h1 id="databus监控oracle原理">databus监控oracle原理</h1>
+<ul>
+<li>每个源表添加一个 txn 列。源表foo最初有三列(A,B,C)，为了databus化需要在源表上添加一个txn列。这个列要建立索引，否则影响抓取效率。</li>
+<li>为每个数据库都创建一个sy$txlog表。它跟踪数据库中databus化的源表的事务变更。它主要的列有(scn, txn, mask, timestamp)。</li>
+<li>每个源表上有一个insert/update的前置触发器，它做两件事情：
+<ul>
+<li>调用sync_core.getTxn()得到当前的事务ID并插入到源表的txn列。</li>
+<li>新增或修改sy$txlog表中对应记录的Txn并 设置为新的txnid，scn初始化为无穷大(99999999),和一个新的mask。</li>
+</ul>
+</li>
+<li>在后台有一个每N秒执行一次的合并job(当前为2秒)，它将sy$txlog表中scn=Infinity的记录的scn更新为ora_rowscn。</li>
+</ul>
+<h1 id="配置databus">配置databus</h1>
+<p>先下载源码</p>
+<pre><code>git clone  https://github.com/linkedin/databus/
+</code></pre>
+<p>复制 <a href="databus-demo/ojdbc6-11.2.0.2.0.jar">ojdbc.jar</a>到 sandbox-repo/com/oracle/ojdbc6/11.2.0.2.0/ 路径下</p>
+<p>打开</p>
+<pre><code>databus-core/databus-core-container/src/main/java/com/linkedin/databus2/core/container/netty/ServerContainer.java
+</code></pre>
+<p>在 initializeContainerJmx() 方法中加入下面这句</p>
+<pre><code>LocateRegistry.createRegistry(_containerStaticConfig.getJmx().getRmiRegistryPort());
+</code></pre>
+<p>不加的话会报 Cannot bind to URL rmi://localhost:1099 ServiceUnavailableException</p>
+<p>加完后结果如下</p>
+<pre><code>protected void initializeContainerJmx()
+{
+
+if (_containerStaticConfig.getJmx().isRmiEnabled())
+{
+try
+{
+  JMXServiceURL jmxServiceUrl =
+      new JMXServiceURL(&quot;service:jmx:rmi://&quot; +
+                        _containerStaticConfig.getJmx().getJmxServiceHost() + &quot;:&quot; +
+                        _containerStaticConfig.getJmx().getJmxServicePort() +&quot;/jndi/rmi://&quot; +
+                        _containerStaticConfig.getJmx().getRmiRegistryHost() + &quot;:&quot; +
+                        _containerStaticConfig.getJmx().getRmiRegistryPort() + &quot;/jmxrmi&quot; +
+                        _containerStaticConfig.getJmx().getJmxServicePort());
+
+  LocateRegistry.createRegistry(_containerStaticConfig.getJmx().getRmiRegistryPort());
+  _jmxConnServer = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceUrl, null,
+                                                                   getMbeanServer());
+}
+catch (Exception e)
+{
+  LOG.warn(&quot;Unable to instantiate JMX server&quot;, e);
+}
+}
+}
+</code></pre>
+<p>配置被监控表的信息:修改databus2-example-relay-pkg/conf/sources-person.json的内容,其中</p>
+<pre><code>{
+&quot;name&quot;: &quot;person&quot;,
+&quot;id&quot;: 1,
+&quot;uri&quot;: &quot;jdbc:oracle:thin:dbbus/dbbus@localhost:1521:orcl&quot;,
+&quot;slowSourceQueryThreshold&quot;: 2000,
+&quot;sources&quot;: [
+    {
+        &quot;id&quot;: 101,
+        &quot;name&quot;: &quot;com.linkedin.events.example.person.Person&quot;,
+        &quot;uri&quot;: &quot;dbbus.person&quot;,
+        &quot;partitionFunction&quot;: &quot;constant:1&quot;
+    }
+]
+</code></pre>
+<p>}</p>
+<h2 id="打包">打包</h2>
+<p>在databus根目录下执行</p>
+<pre><code>gradle -Dopen_source=true assemble
+</code></pre>
+<h1 id="配置oracle">配置oracle</h1>
+<p>databus里自带了配置脚本,我们可以用它来实现对oracle的快速配置
+oracle配置脚本位于databus文件夹下的 /db/oracle/bin 路径
+首先要执行 createUser.sh脚本,在执行之前需要做一些修改:</p>
+<pre><code>将下面这行的 system/manager\@${DBNAME} 删掉
+sqlplus system/manager\@${DBNAME} as sysdba &lt;&lt; __EOF__
+修改后如下
+sqlplus / as sysdba &lt;&lt; __EOF__
+</code></pre>
+<p>然后修改第57行,因为没有temp1这个tablespace,所以到57行会报错,我们要将temporary tablespace temp1删掉.删除后的代码如下:</p>
+<pre><code>create user ${USER} identified by ${PASSWD} default tablespace ${TBS_UC} ;
+</code></pre>
+<p>在oracle用户下执行以下命令创建用户dbbus/dbbus,其中db_path是存放oracle的.dbf文件的路径:</p>
+<pre><code>#createUser.sh db_username db_password db_id db_table_space db_path
+sh createUser.sh dbbus dbbus orcl tbs_dbbus /u01/app/oracle/product/11.2.0/dbs/
+</code></pre>
+<p>运行 createSchema.sh 在oracle中生成必要的 package table seq tigger Procedure 等</p>
+<pre><code>#createSchema.sh db_username/db_password@db_id tab_and_view_path
+sh createSchema.sh dbbus/dbbus@orcl /home/oracle/databus/databus2-example/database/person
+</code></pre>
+<p>启动Relay:
+* cd build/databus2-example-relay-pkg/distributions
+* tar -zxvf databus2-example-relay-pkg.tar.gz解压
+* 执行启动脚本 ./bin/start-example-relay.sh person</p>
+<p>启动 Client:
+* cd build/databus2-example-client-pkg/distributions
+* tar -zxvf databus2-example-client-pkg.tar.gz解压
+* 执行启动脚本 ./bin/start-example-client.sh person</p>
+<p>在oracle中执行insert语句</p>
+<pre><code>INSERT INTO person(id,first_name, last_name) VALUES(1,'balaji', 'varadaran');
+</code></pre>
+<p>返回下面结果证明搭建成功</p>
+<pre><code>2018-01-12 15:35:06,338 +1222808 [callback-1] (INFO) {PersonConsumer} firstName: balaji, lastName: varadaran, birthDate: null, deleted: false
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="/Users/zhubingxu/SynologyDrive/博客/output/tag/GHbcOBabn/index.html" class="tag">
+                    Databus
+                  </a>
+                
+                  <a href="/Users/zhubingxu/SynologyDrive/博客/output/tag/ADQbaMPYB/index.html" class="tag">
+                    Oracle
+                  </a>
+                
+                  <a href="/Users/zhubingxu/SynologyDrive/博客/output/tag/MEs3-c6b5/index.html" class="tag">
+                    Java
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/databus-bu-shu-mysql/index.html">
+                  <h3 class="post-title">
+                    Databus部署(MYSQL)
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>在Ubuntu Server下安装Dropbox | 杂记</title>
+<meta name="description" content="温故而知新">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="/Users/zhubingxu/SynologyDrive/博客/output/favicon.ico?v=1558854858866">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="/Users/zhubingxu/SynologyDrive/博客/output/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="/Users/zhubingxu/SynologyDrive/博客/output">
+        <img src="/Users/zhubingxu/SynologyDrive/博客/output/images/avatar.png?v=1558854858866" class="site-logo">
+        <h1 class="site-title">杂记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output//index.html" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/archives/index.html" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/tags/index.html" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/about/index.html" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="/Users/zhubingxu/SynologyDrive/博客/output/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">在Ubuntu Server下安装Dropbox</h2>
+            <div class="post-date">2017-10-19</div>
+            
+            <div class="post-content">
+              <p>服务器和本地之间要同步东西,总是用ftp挺烦的.发现Dropbox有Linux server版,刚好服务器处于海外不需要翻墙,于是安装一个用来同步文件.</p>
+<!-- more -->
+<h2 id="安装">安装</h2>
+<h3 id="安装主程序">安装主程序</h3>
+<p>通过命令行下载安装Dropbox</p>
+<pre><code>cd ~ &amp;&amp; wget -O - &quot;https://www.dropbox.com/download?plat=lnx.x86_64&quot; | tar xzf -
+</code></pre>
+<p>安装完成后启动dropbox</p>
+<pre><code>~/.dropbox-dist/dropboxd
+</code></pre>
+<p>如果是首次在服务器上运行 Dropbox，系统会要求将链接复制并粘贴到运行的浏览器中，以便创建一个新的帐户或将服务器附加到现有帐户上。操作完成后，系统会在主目录中创建 Dropbox 文件夹。</p>
+<h3 id="下载控制脚本">下载控制脚本</h3>
+<p>安装完成后下载这个<a href="https://www.dropbox.com/download?dl=packages/dropbox.py">python脚本</a>用来控制Dropbox.</p>
+<p>脚本参数如下:</p>
+<pre><code>status       查看Dropbox状态
+throttle     设置带宽限制
+help         提供帮助
+puburl       获取public文件分享链接
+stop         停止dropbox
+running      返回dropbox运行状态
+start        启动dropbox
+filestatus   获取文件同步状态
+ls           列出当前目录同步状态
+autostart    登录时自动启动dropbox
+exclude      不同步的文件或文件夹
+lansync      开启/关闭 lan 同步
+sharelink    分享链接
+proxy        设置代理
+</code></pre>
+<h2 id="使用方法">使用方法</h2>
+<h3 id="查看状态">查看状态</h3>
+<p>在命令行中输入</p>
+<pre><code>python dropbox.py filestatus
+</code></pre>
+<p>可查看当前同步状态</p>
+<pre><code>.dropbox:       unwatched
+cat.sql:        up to date
+dropbox.py:     syncing
+project:        syncing
+sendmail:       syncing
+Works:          syncing
+个人文件:        syncing
+</code></pre>
+<h3 id="排除不需要同步的文件文件夹">排除不需要同步的文件/文件夹</h3>
+<p>在Dropbox/ 下输入以下命令</p>
+<pre><code>python dropbox.py add 被排除的文件名
+</code></pre>
+<p>即可将该文件排除.</p>
+<p>取消排除</p>
+<pre><code>python dropbox.py remove 被排除的文件名
+</code></pre>
+<p>则可以重新同步该文件</p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="/Users/zhubingxu/SynologyDrive/博客/output/post/yong-hexo-da-jian-ge-ren-bo-ke/index.html">
+                  <h3 class="post-title">
+                    用Hexo搭建个人博客
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

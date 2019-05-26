@@ -1,0 +1,885 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>/Users/zhubingxu/SynologyDrive/博客/output</id>
+    <title>杂记</title>
+    <updated>2019-05-26T07:14:41.128Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="/Users/zhubingxu/SynologyDrive/博客/output"/>
+    <link rel="self" href="/Users/zhubingxu/SynologyDrive/博客/output/atom.xml"/>
+    <subtitle>温故而知新</subtitle>
+    <logo>/Users/zhubingxu/SynologyDrive/博客/output/images/avatar.png</logo>
+    <icon>/Users/zhubingxu/SynologyDrive/博客/output/favicon.ico</icon>
+    <rights>All rights reserved 2019, 杂记</rights>
+    <entry>
+        <title type="html"><![CDATA[Hello Gridea]]></title>
+        <id>/Users/zhubingxu/SynologyDrive/博客/output/post/hello-gridea/index.html</id>
+        <link href="/Users/zhubingxu/SynologyDrive/博客/output/post/hello-gridea/index.html">
+        </link>
+        <updated>2018-12-11T16:00:00.000Z</updated>
+        <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
+✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
+✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
+<!-- more -->
+<p><a href="https://github.com/getgridea/gridea">Github</a><br>
+<a href="http://hvenotes.fehey.com/">Gridea 主页</a><br>
+<a href="http://fehey.com/">示例网站</a></p>
+<h2 id="特性">特性👇</h2>
+<p>📝  你可以使用最酷的 <strong>Markdown</strong> 语法，进行快速创作</p>
+<p>🌉  你可以给文章配上精美的封面图和在文章任意位置插入图片</p>
+<p>🏷️  你可以对文章进行标签分组</p>
+<p>📋  你可以自定义菜单，甚至可以创建外部链接菜单</p>
+<p>💻  你可以在 <strong>𝖶𝗂𝗇𝖽𝗈𝗐𝗌</strong> 或 <strong>𝖬𝖺𝖼𝖮𝖲</strong> 设备上使用此客户端</p>
+<p>🌎  你可以使用 <strong>𝖦𝗂𝗍𝗁𝗎𝖻 𝖯𝖺𝗀𝖾𝗌</strong> 或 <strong>Coding Pages</strong> 向世界展示，未来将支持更多平台</p>
+<p>💬  你可以进行简单的配置，接入 <a href="https://github.com/gitalk/gitalk">Gitalk</a> 或 <a href="https://github.com/SukkaW/DisqusJS">DisqusJS</a> 评论系统</p>
+<p>🇬🇧  你可以使用<strong>中文简体</strong>或<strong>英语</strong></p>
+<p>🌁  你可以任意使用应用内默认主题或任意第三方主题，强大的主题自定义能力</p>
+<p>🖥  你可以自定义源文件夹，利用 OneDrive、百度网盘、iCloud、Dropbox 等进行多设备同步</p>
+<p>🌱 当然 <strong>Gridea</strong> 还很年轻，有很多不足，但请相信，它会不停向前🏃</p>
+<p>未来，它一定会成为你离不开的伙伴</p>
+<p>尽情发挥你的才华吧！</p>
+<p>😘 Enjoy~</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Debezium部署(PostgreSQL)]]></title>
+        <id>/Users/zhubingxu/SynologyDrive/博客/output/post/debezium-bu-shu-postgresql/index.html</id>
+        <link href="/Users/zhubingxu/SynologyDrive/博客/output/post/debezium-bu-shu-postgresql/index.html">
+        </link>
+        <updated>2018-06-05T00:56:23.000Z</updated>
+        <summary type="html"><![CDATA[<p>debezium是一个用于抓取数据库变更事件的开源项目,它可以将数据实时的从数据库中抽取出来并通过kafka connect推送到kafka中.每一个部署到 Kafka的连接器都可以通过一个或者多个主题( 每个数据库表通常有一个主题) 捕获所有的变更并记录在一个或者多个服务器上。 Kafka 确保所有这些数据更改事件被复制和完全有序，并且允许许多客户端独立使用这些相同的数据</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>debezium是一个用于抓取数据库变更事件的开源项目,它可以将数据实时的从数据库中抽取出来并通过kafka connect推送到kafka中.每一个部署到 Kafka的连接器都可以通过一个或者多个主题( 每个数据库表通常有一个主题) 捕获所有的变更并记录在一个或者多个服务器上。 Kafka 确保所有这些数据更改事件被复制和完全有序，并且允许许多客户端独立使用这些相同的数据</p>
+<!-- more -->
+<h2 id="准备">准备</h2>
+<p>部署debezium有几点要求:</p>
+<ul>
+<li>PostgreSQL版本9.4+</li>
+<li>kafka版本0.9.0+</li>
+</ul>
+<p>PostgreSQL版本需要升级到9.4以上是因为从9.4版本开始,PostgreSQL引入了logical decoding 功能,它允许第三方逻辑解码插件将它的事务日志输出.
+kafka 在0.9.0版本后支持kafka connect,debezium本质上是kafka connect插件,因此需要有kafka connect的支持.</p>
+<h2 id="数据库配置">数据库配置</h2>
+<p>在部署debezium前需要对PostgreSQL进行配置.我使用的是9.4版本的库.debezium支持两个逻辑解码插件
+<a href="https://github.com/debezium/postgres-decoderbufs">Protobuf based</a>和<a href="https://github.com/eulerto/wal2json">wal2json</a>.因为Protobuf based要求数据库版本在9.6以上,因此我采用了wal2json配置.</p>
+<h3 id="编译安装">编译安装</h3>
+<pre><code># 通过从github上下载插件源码
+$ git clone https://github.com/eulerto/wal2json.git
+# 编译安装插件
+$ PATH=/path/to/bin/pg_config:$PATH
+$ USE_PGXS=1 make
+$ USE_PGXS=1 make install
+</code></pre>
+<h3 id="修改配置">修改配置</h3>
+<h4 id="postgresqlconf">postgresql.conf</h4>
+<p>需要修改以下配置</p>
+<pre><code>listen_addresses = '*'  
+wal_level = logical
+max_replication_slots = 1
+max_wal_senders = 1
+# MODULES
+shared_preload_libraries = 'wal2json'
+</code></pre>
+<p>max_replication_slots,max_wal_senders两项配置可以根据需求来调大.配置修改后需要重启数据库使配置生效</p>
+<h3 id="pg_hbaconf">pg_hba.conf</h3>
+<pre><code># TYPE  DATABASE        USER            ADDRESS                 METHOD
+host    all             all             0.0.0.0/0               md5
+# &quot;local&quot; is for Unix domain socket connections only
+local   all             all                                     peer
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            ident
+# IPv6 local connections:
+host    all             all             ::1/128                 ident
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+local   replication     postgres                                trust
+host    replication     postgres        127.0.0.1/32            trust
+host    replication     postgres        ::1/128                 trust
+
+#wal2json
+local    replication     all                     trust
+</code></pre>
+<p>修改后重启数据库生效</p>
+<h2 id="debezium部署">debezium部署</h2>
+<ol>
+<li>
+<p>下载<a href="https://www.confluent.io/download/">confluent</a>,解压到任意目录下.</p>
+</li>
+<li>
+<p>下载<a href="https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/0.7.5/debezium-connector-postgres-0.7.5-plugin.tar.gz">Postgres Connector plugin archive</a>,解压后放到confluent目录的 share/java/ 路径下.解压后的包名为debezium-connector-postgres</p>
+</li>
+<li>
+<p>创建debezium配置文件debezium.properties:</p>
+<pre><code> name=events-debezium
+ tasks.max=1
+ connector.class=io.debezium.connector.postgresql.PostgresConnector
+ database.hostname=localhost
+ database.port=5432
+ database.user=postgres
+ database.password=postgres
+ database.dbname=postgres
+ database.history.kafka.bootstrap.servers=localhost:9092
+ database.server.id=1
+ database.server.name=postgres.localhost
+ plugin.name=wal2json
+ include.schema.changes=true
+</code></pre>
+</li>
+<li>
+<p>进入confluent目录下,启动zookeeper:</p>
+<pre><code> sudo bin/zookeeper-server-start -daemon etc/kafka/zookeeper.properties
+</code></pre>
+</li>
+<li>
+<p>启动kafka:</p>
+<pre><code> sudo bin/kafka-server-start -daemon etc/kafka/server.properties
+</code></pre>
+</li>
+<li>
+<p>启动kafka connect:</p>
+<pre><code> sudo bin/connect-standalone etc/kafka/connect-standalone.properties etc/kafka-connect-postgres/debezium.properties
+</code></pre>
+</li>
+<li>
+<p>kafka connect启动后会为每一张表建立一个topic,通过kafka consumer命令监听某一个topic,然后进行update操作,可以看到:</p>
+<pre><code> {&quot;schema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;a&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;b&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.time.NanoTimestamp&quot;,&quot;version&quot;:1,&quot;field&quot;:&quot;c&quot;}],&quot;optional&quot;:true,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Value&quot;,&quot;field&quot;:&quot;before&quot;},{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;a&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;b&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.time.NanoTimestamp&quot;,&quot;version&quot;:1,&quot;field&quot;:&quot;c&quot;}],&quot;optional&quot;:true,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Value&quot;,&quot;field&quot;:&quot;after&quot;},{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;version&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;name&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;ts_usec&quot;},{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;txId&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;lsn&quot;},{&quot;type&quot;:&quot;boolean&quot;,&quot;optional&quot;:true,&quot;default&quot;:false,&quot;field&quot;:&quot;snapshot&quot;},{&quot;type&quot;:&quot;boolean&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;last_snapshot_record&quot;}],&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.connector.postgresql.Source&quot;,&quot;field&quot;:&quot;source&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;op&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;ts_ms&quot;}],&quot;optional&quot;:false,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Envelope&quot;},&quot;payload&quot;:{&quot;before&quot;:{&quot;a&quot;:6,&quot;b&quot;:null,&quot;c&quot;:1526983438558366000},&quot;after&quot;:null,&quot;source&quot;:{&quot;version&quot;:&quot;0.7.5&quot;,&quot;name&quot;:&quot;postgres.localhost&quot;,&quot;ts_usec&quot;:1528103530924231000,&quot;txId&quot;:1927,&quot;lsn&quot;:24850324,&quot;snapshot&quot;:false,&quot;last_snapshot_record&quot;:null},&quot;op&quot;:&quot;d&quot;,&quot;ts_ms&quot;:1528103530926}}
+ {&quot;schema&quot;:null,&quot;payload&quot;:null}
+ {&quot;schema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;a&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;b&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.time.NanoTimestamp&quot;,&quot;version&quot;:1,&quot;field&quot;:&quot;c&quot;}],&quot;optional&quot;:true,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Value&quot;,&quot;field&quot;:&quot;before&quot;},{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;a&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;b&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.time.NanoTimestamp&quot;,&quot;version&quot;:1,&quot;field&quot;:&quot;c&quot;}],&quot;optional&quot;:true,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Value&quot;,&quot;field&quot;:&quot;after&quot;},{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;version&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;name&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;ts_usec&quot;},{&quot;type&quot;:&quot;int32&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;txId&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;lsn&quot;},{&quot;type&quot;:&quot;boolean&quot;,&quot;optional&quot;:true,&quot;default&quot;:false,&quot;field&quot;:&quot;snapshot&quot;},{&quot;type&quot;:&quot;boolean&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;last_snapshot_record&quot;}],&quot;optional&quot;:false,&quot;name&quot;:&quot;io.debezium.connector.postgresql.Source&quot;,&quot;field&quot;:&quot;source&quot;},{&quot;type&quot;:&quot;string&quot;,&quot;optional&quot;:false,&quot;field&quot;:&quot;op&quot;},{&quot;type&quot;:&quot;int64&quot;,&quot;optional&quot;:true,&quot;field&quot;:&quot;ts_ms&quot;}],&quot;optional&quot;:false,&quot;name&quot;:&quot;postgres.localhost.public.table_with_pk.Envelope&quot;},&quot;payload&quot;:{&quot;before&quot;:null,&quot;after&quot;:{&quot;a&quot;:7,&quot;b&quot;:&quot;Replication&quot;,&quot;c&quot;:1526983438558366000},&quot;source&quot;:{&quot;version&quot;:&quot;0.7.5&quot;,&quot;name&quot;:&quot;postgres.localhost&quot;,&quot;ts_usec&quot;:1528103530924231000,&quot;txId&quot;:1927,&quot;lsn&quot;:24850324,&quot;snapshot&quot;:false,&quot;last_snapshot_record&quot;:null},&quot;op&quot;:&quot;c&quot;,&quot;ts_ms&quot;:1528103530926}}
+</code></pre>
+</li>
+</ol>
+<p>第一个json是update前的,其中payload是update前的值.</p>
+<pre><code>{&quot;before&quot;:{&quot;a&quot;:6,&quot;b&quot;:null,&quot;c&quot;:1526983438558366000},&quot;after&quot;:null,&quot;source&quot;:{&quot;version&quot;:&quot;0.7.5&quot;,&quot;name&quot;:&quot;postgres.localhost&quot;,&quot;ts_usec&quot;:1528103530924231000,&quot;txId&quot;:1927,&quot;lsn&quot;:24850324,&quot;snapshot&quot;:false,&quot;last_snapshot_record&quot;:null},&quot;op&quot;:&quot;d&quot;,&quot;ts_ms&quot;:1528103530926}
+</code></pre>
+<p>最后一个json是update后的,payload中是update后的值.</p>
+<pre><code>{&quot;before&quot;:null,&quot;after&quot;:{&quot;a&quot;:7,&quot;b&quot;:&quot;Replication&quot;,&quot;c&quot;:1526983438558366000},&quot;source&quot;:{&quot;version&quot;:&quot;0.7.5&quot;,&quot;name&quot;:&quot;postgres.localhost&quot;,&quot;ts_usec&quot;:1528103530924231000,&quot;txId&quot;:1927,&quot;lsn&quot;:24850324,&quot;snapshot&quot;:false,&quot;last_snapshot_record&quot;:null},&quot;op&quot;:&quot;c&quot;,&quot;ts_ms&quot;:1528103530926}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ ehcache持久化到硬盘index丢失问题]]></title>
+        <id>/Users/zhubingxu/SynologyDrive/博客/output/post/ehcache-chi-jiu-hua-dao-ying-pan-index-diu-shi-wen-ti/index.html</id>
+        <link href="/Users/zhubingxu/SynologyDrive/博客/output/post/ehcache-chi-jiu-hua-dao-ying-pan-index-diu-shi-wen-ti/index.html">
+        </link>
+        <updated>2018-03-05T23:00:31.000Z</updated>
+        <summary type="html"><![CDATA[<p>ehcache持久化到硬盘后会出现以.index结尾的索引文件和以.data结尾的数据文件.当ehcache重启时会从硬盘中加载数据缓存到内存中.</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>ehcache持久化到硬盘后会出现以.index结尾的索引文件和以.data结尾的数据文件.当ehcache重启时会从硬盘中加载数据缓存到内存中.</p>
+<!-- more -->
+<h1 id="问题">问题</h1>
+<p>当ehcache配置好后向ehcache中插入数据,正常停止ehcache时本地可以看到已经持久化到本地的文件</p>
+<pre><code>total 16
+-rw-r--r--  1 zhubingxu  staff   2.1K  3  6 14:57 %0043itycode_%00561.data
+-rw-r--r--  1 zhubingxu  staff   273B  3  6 14:57 %0043itycode_%00561.index
+</code></pre>
+<p>这时候持久化数据是正常的.然而当服务停止后我们通过自己封装的接口直接查询EhCache中的数据时会发现第一次查询返回的结果是正常的,第二次查询发现返回的结果为null.</p>
+<pre><code>第一次调用结果
+1520317305023
+
+第二次调用结果
+null
+</code></pre>
+<p>查看持久化文件发现.data文件还存在而.index索引文件丢失了.</p>
+<h1 id="原因">原因</h1>
+<p>ehcache恢复数据是根据.index索引文件来进行数据恢复的.当程序运行后,ehcache的一个方法会将.data文件和.index文件的修改时间进行比较,如果不符合直接将.index文件删除.第一次调用后.index文件的修改时间不会变,而.data的修改时间会变成当前时间.所以第二次查询时由于修改时间的变化导致.index文件被删除无法加载之前缓存中的数据,返回null.</p>
+<pre><code>第一次调用时的结果
+可以发现.data文件时间更新了
+total 16
+-rw-r--r--  1 zhubingxu  staff   2.1K  3  6 15:38 %0043itycode_%00561.data
+-rw-r--r--  1 zhubingxu  staff   273B  3  6 14:57 %0043itycode_%00561.index
+</code></pre>
+<p>而ehcache的.index文件和.data文件时间不一致的原因是ehcache是在停止的时候通过触发一个事件来生成.index文件的,而我们非正常停止是不会触发这个事件的,这就导致.data时间更新了而.index时间不变.</p>
+<h1 id="解决办法">解决办法</h1>
+<p>因为非正常关闭是不会触发写入.index文件这个方法,因此我们就要手动来执行这个方法.
+首先在static中加入这行代码</p>
+<pre><code>System.setProperty(net.sf.ehcache.CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY,&quot;true&quot;);
+</code></pre>
+<p>如下所示</p>
+<pre><code>static {
+try {
+    InputStream inputStream = EhCacheWrap.class.getResourceAsStream(&quot;/databuscache.xml&quot;);
+    System.setProperty(net.sf.ehcache.CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY,&quot;true&quot;);
+    manager = new CacheManager(inputStream);
+    if (manager == null) {
+        manager = CacheManager.create();
+    }
+} catch (CacheException var1) {
+    var1.printStackTrace();
+    System.out.println(&quot;！！！Initialize cache manager failed.&quot; + var1);
+    logger.fatal(&quot;！！！Initialize cache manager failed.&quot;, var1);
+}
+</code></pre>
+<p>}</p>
+<p>然后在每次getCache()后都要调用flush()方法实时写入硬盘.</p>
+<pre><code>Cache cache=manager.getCache(arg0);
+cache.flush();
+</code></pre>
+<p>之后再测试就会发现读取缓存正常了,不会出现缓存丢失的情况</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Databus部署(Oracle)]]></title>
+        <id>/Users/zhubingxu/SynologyDrive/博客/output/post/databus-bu-shu-oracle/index.html</id>
+        <link href="/Users/zhubingxu/SynologyDrive/博客/output/post/databus-bu-shu-oracle/index.html">
+        </link>
+        <updated>2018-01-12T00:48:33.000Z</updated>
+        <summary type="html"><![CDATA[<p>databus支持两种数据库:mysql和oracle.mysql采用的是bin-log方式,这种方式配置起来简单.还有一种是oracle.oracle由于没有bin-log机制,因此采用另外的一种方式</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>databus支持两种数据库:mysql和oracle.mysql采用的是bin-log方式,这种方式配置起来简单.还有一种是oracle.oracle由于没有bin-log机制,因此采用另外的一种方式</p>
+<!-- more -->
+<h1 id="databus监控oracle原理">databus监控oracle原理</h1>
+<ul>
+<li>每个源表添加一个 txn 列。源表foo最初有三列(A,B,C)，为了databus化需要在源表上添加一个txn列。这个列要建立索引，否则影响抓取效率。</li>
+<li>为每个数据库都创建一个sy$txlog表。它跟踪数据库中databus化的源表的事务变更。它主要的列有(scn, txn, mask, timestamp)。</li>
+<li>每个源表上有一个insert/update的前置触发器，它做两件事情：
+<ul>
+<li>调用sync_core.getTxn()得到当前的事务ID并插入到源表的txn列。</li>
+<li>新增或修改sy$txlog表中对应记录的Txn并 设置为新的txnid，scn初始化为无穷大(99999999),和一个新的mask。</li>
+</ul>
+</li>
+<li>在后台有一个每N秒执行一次的合并job(当前为2秒)，它将sy$txlog表中scn=Infinity的记录的scn更新为ora_rowscn。</li>
+</ul>
+<h1 id="配置databus">配置databus</h1>
+<p>先下载源码</p>
+<pre><code>git clone  https://github.com/linkedin/databus/
+</code></pre>
+<p>复制 <a href="databus-demo/ojdbc6-11.2.0.2.0.jar">ojdbc.jar</a>到 sandbox-repo/com/oracle/ojdbc6/11.2.0.2.0/ 路径下</p>
+<p>打开</p>
+<pre><code>databus-core/databus-core-container/src/main/java/com/linkedin/databus2/core/container/netty/ServerContainer.java
+</code></pre>
+<p>在 initializeContainerJmx() 方法中加入下面这句</p>
+<pre><code>LocateRegistry.createRegistry(_containerStaticConfig.getJmx().getRmiRegistryPort());
+</code></pre>
+<p>不加的话会报 Cannot bind to URL rmi://localhost:1099 ServiceUnavailableException</p>
+<p>加完后结果如下</p>
+<pre><code>protected void initializeContainerJmx()
+{
+
+if (_containerStaticConfig.getJmx().isRmiEnabled())
+{
+try
+{
+  JMXServiceURL jmxServiceUrl =
+      new JMXServiceURL(&quot;service:jmx:rmi://&quot; +
+                        _containerStaticConfig.getJmx().getJmxServiceHost() + &quot;:&quot; +
+                        _containerStaticConfig.getJmx().getJmxServicePort() +&quot;/jndi/rmi://&quot; +
+                        _containerStaticConfig.getJmx().getRmiRegistryHost() + &quot;:&quot; +
+                        _containerStaticConfig.getJmx().getRmiRegistryPort() + &quot;/jmxrmi&quot; +
+                        _containerStaticConfig.getJmx().getJmxServicePort());
+
+  LocateRegistry.createRegistry(_containerStaticConfig.getJmx().getRmiRegistryPort());
+  _jmxConnServer = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceUrl, null,
+                                                                   getMbeanServer());
+}
+catch (Exception e)
+{
+  LOG.warn(&quot;Unable to instantiate JMX server&quot;, e);
+}
+}
+}
+</code></pre>
+<p>配置被监控表的信息:修改databus2-example-relay-pkg/conf/sources-person.json的内容,其中</p>
+<pre><code>{
+&quot;name&quot;: &quot;person&quot;,
+&quot;id&quot;: 1,
+&quot;uri&quot;: &quot;jdbc:oracle:thin:dbbus/dbbus@localhost:1521:orcl&quot;,
+&quot;slowSourceQueryThreshold&quot;: 2000,
+&quot;sources&quot;: [
+    {
+        &quot;id&quot;: 101,
+        &quot;name&quot;: &quot;com.linkedin.events.example.person.Person&quot;,
+        &quot;uri&quot;: &quot;dbbus.person&quot;,
+        &quot;partitionFunction&quot;: &quot;constant:1&quot;
+    }
+]
+</code></pre>
+<p>}</p>
+<h2 id="打包">打包</h2>
+<p>在databus根目录下执行</p>
+<pre><code>gradle -Dopen_source=true assemble
+</code></pre>
+<h1 id="配置oracle">配置oracle</h1>
+<p>databus里自带了配置脚本,我们可以用它来实现对oracle的快速配置
+oracle配置脚本位于databus文件夹下的 /db/oracle/bin 路径
+首先要执行 createUser.sh脚本,在执行之前需要做一些修改:</p>
+<pre><code>将下面这行的 system/manager\@${DBNAME} 删掉
+sqlplus system/manager\@${DBNAME} as sysdba &lt;&lt; __EOF__
+修改后如下
+sqlplus / as sysdba &lt;&lt; __EOF__
+</code></pre>
+<p>然后修改第57行,因为没有temp1这个tablespace,所以到57行会报错,我们要将temporary tablespace temp1删掉.删除后的代码如下:</p>
+<pre><code>create user ${USER} identified by ${PASSWD} default tablespace ${TBS_UC} ;
+</code></pre>
+<p>在oracle用户下执行以下命令创建用户dbbus/dbbus,其中db_path是存放oracle的.dbf文件的路径:</p>
+<pre><code>#createUser.sh db_username db_password db_id db_table_space db_path
+sh createUser.sh dbbus dbbus orcl tbs_dbbus /u01/app/oracle/product/11.2.0/dbs/
+</code></pre>
+<p>运行 createSchema.sh 在oracle中生成必要的 package table seq tigger Procedure 等</p>
+<pre><code>#createSchema.sh db_username/db_password@db_id tab_and_view_path
+sh createSchema.sh dbbus/dbbus@orcl /home/oracle/databus/databus2-example/database/person
+</code></pre>
+<p>启动Relay:
+* cd build/databus2-example-relay-pkg/distributions
+* tar -zxvf databus2-example-relay-pkg.tar.gz解压
+* 执行启动脚本 ./bin/start-example-relay.sh person</p>
+<p>启动 Client:
+* cd build/databus2-example-client-pkg/distributions
+* tar -zxvf databus2-example-client-pkg.tar.gz解压
+* 执行启动脚本 ./bin/start-example-client.sh person</p>
+<p>在oracle中执行insert语句</p>
+<pre><code>INSERT INTO person(id,first_name, last_name) VALUES(1,'balaji', 'varadaran');
+</code></pre>
+<p>返回下面结果证明搭建成功</p>
+<pre><code>2018-01-12 15:35:06,338 +1222808 [callback-1] (INFO) {PersonConsumer} firstName: balaji, lastName: varadaran, birthDate: null, deleted: false
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Databus部署(MYSQL)]]></title>
+        <id>/Users/zhubingxu/SynologyDrive/博客/output/post/databus-bu-shu-mysql/index.html</id>
+        <link href="/Users/zhubingxu/SynologyDrive/博客/output/post/databus-bu-shu-mysql/index.html">
+        </link>
+        <updated>2017-12-19T07:23:19.000Z</updated>
+        <summary type="html"><![CDATA[<p>Databus是一个由LinkedIn开源的低延迟、可靠的、支持事务的、保持一致性的数据变更抓取系统。它有以下特点:</p>
+<ul>
+<li><strong>来源独立</strong>：Databus支持多种数据来源的变更抓取，包括Oracle和MySQL。</li>
+<li><strong>可扩展、高度可用</strong>：Databus能扩展到支持数千消费者和事务数据来源，同时保持高度可用性。</li>
+<li><strong>事务按序提交</strong>：Databus能保持来源数据库中的事务完整性，并按照事务分组和来源的提交顺寻交付变更事件。</li>
+<li><strong>低延迟、支持多种订阅机制</strong>：数据源变更完成后，Databus能在毫秒级内将事务提交给消费者。同时，消费者使用Databus中的服务器端过滤功能，可以只获取自己需要的特定数据。</li>
+<li><strong>无限回溯</strong>：对消费者支持无限回溯能力，例如当消费者需要产生数据的完整拷贝时，它不会对数据库产生任何额外负担。当消费者的数据大大落后于来源数据库时，也可以使用该功能。</li>
+</ul>
+]]></summary>
+        <content type="html"><![CDATA[<p>Databus是一个由LinkedIn开源的低延迟、可靠的、支持事务的、保持一致性的数据变更抓取系统。它有以下特点:</p>
+<ul>
+<li><strong>来源独立</strong>：Databus支持多种数据来源的变更抓取，包括Oracle和MySQL。</li>
+<li><strong>可扩展、高度可用</strong>：Databus能扩展到支持数千消费者和事务数据来源，同时保持高度可用性。</li>
+<li><strong>事务按序提交</strong>：Databus能保持来源数据库中的事务完整性，并按照事务分组和来源的提交顺寻交付变更事件。</li>
+<li><strong>低延迟、支持多种订阅机制</strong>：数据源变更完成后，Databus能在毫秒级内将事务提交给消费者。同时，消费者使用Databus中的服务器端过滤功能，可以只获取自己需要的特定数据。</li>
+<li><strong>无限回溯</strong>：对消费者支持无限回溯能力，例如当消费者需要产生数据的完整拷贝时，它不会对数据库产生任何额外负担。当消费者的数据大大落后于来源数据库时，也可以使用该功能。</li>
+</ul>
+<!-- more -->
+<h1 id="部署">部署</h1>
+<h2 id="gradle安装">gradle安装</h2>
+<p>Databus采用gradle编译,因此在编译前需要安装gradle</p>
+<p>macOS安装gradle方法:</p>
+<pre><code>brew install gradle
+</code></pre>
+<p>安装完成后输入 gradle -version 如果出现以下信息则安装成功</p>
+<pre><code>------------------------------------------------------------
+Gradle 4.3.1
+------------------------------------------------------------
+
+Build time:   2017-11-08 08:59:45 UTC
+Revision:     e4f4804807ef7c2829da51877861ff06e07e006d
+
+Groovy:       2.4.12
+Ant:          Apache Ant(TM) version 1.9.6 compiled on June 29 2015
+JVM:          1.8.0_131 (Oracle Corporation 25.131-b11)
+OS:           Mac OS X 10.13.2 x86_64
+</code></pre>
+<h2 id="数据库配置">数据库配置</h2>
+<p>安装mysql数据库.我使用的是5.5.56版本.高版本可能会有问题.
+数据库要开启binlog,查看是否开启的方法是</p>
+<pre><code>  SHOW VARIABLES LIKE 'log_bin';
+</code></pre>
+<p>如果没有开启可以用</p>
+<pre><code>SET SQL_LOG_BIN=1;
+</code></pre>
+<p>来开启.</p>
+<p>将数据库binlog_format设置成ROW.查看binlog_format方法为</p>
+<pre><code>SHOW VARIABLES LIKE 'binlog_format';
+</code></pre>
+<p>设置方法为</p>
+<pre><code>SET GLOBLE binlog_format =ROW;
+</code></pre>
+<p>将 binlog_checksum 设置为空.查看方法为</p>
+<pre><code>SHOW GLOBAL VARIABLES LIKE 'binlog_checksum';
+</code></pre>
+<p>设置方法为</p>
+<pre><code>SET binlog_checksum=NONE;
+</code></pre>
+<p>在mysql上创建名为or_test的数据库</p>
+<pre><code>CREATE DATABASE or_test;
+</code></pre>
+<p>并在or_test上创建名为person的表:</p>
+<pre><code>CREATE TABLE person
+(
+id INT(11) PRIMARY KEY NOT NULL,
+first_name VARCHAR(120) NOT NULL,
+last_name VARCHAR(120) NOT NULL,
+birth_date DATE,
+deleted VARCHAR(5) NOT NULL
+);
+</code></pre>
+<h2 id="源码配置">源码配置</h2>
+<p>先下载源码</p>
+<pre><code>git clone  https://github.com/linkedin/databus/
+</code></pre>
+<p>复制 <a href="databus-demo/ojdbc6-11.2.0.2.0.jar">ojdbc.jar</a>到 sandbox-repo/com/oracle/ojdbc6/11.2.0.2.0/ 路径下</p>
+<p>打开</p>
+<pre><code>databus-core/databus-core-container/src/main/java/com/linkedin/databus2/core/container/netty/ServerContainer.java
+</code></pre>
+<p>在 initializeContainerJmx() 方法中加入下面这句</p>
+<pre><code>LocateRegistry.createRegistry(_containerStaticConfig.getJmx().getRmiRegistryPort());
+</code></pre>
+<p>不加的话会报 Cannot bind to URL rmi://localhost:1099 ServiceUnavailableException</p>
+<p>加完后结果如下</p>
+<pre><code>protected void initializeContainerJmx()
+{
+
+if (_containerStaticConfig.getJmx().isRmiEnabled())
+{
+try
+{
+  JMXServiceURL jmxServiceUrl =
+      new JMXServiceURL(&quot;service:jmx:rmi://&quot; +
+                        _containerStaticConfig.getJmx().getJmxServiceHost() + &quot;:&quot; +
+                        _containerStaticConfig.getJmx().getJmxServicePort() +&quot;/jndi/rmi://&quot; +
+                        _containerStaticConfig.getJmx().getRmiRegistryHost() + &quot;:&quot; +
+                        _containerStaticConfig.getJmx().getRmiRegistryPort() + &quot;/jmxrmi&quot; +
+                        _containerStaticConfig.getJmx().getJmxServicePort());
+
+  LocateRegistry.createRegistry(_containerStaticConfig.getJmx().getRmiRegistryPort());
+  _jmxConnServer = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceUrl, null,
+                                                                   getMbeanServer());
+}
+catch (Exception e)
+{
+  LOG.warn(&quot;Unable to instantiate JMX server&quot;, e);
+}
+}
+}
+</code></pre>
+<p>配置被监控表的信息:修改databus2-example-relay-pkg/conf/sources-or-person.json的内容,其中
+URI</p>
+<pre><code>format:mysql://username/password@mysql_host[:mysql_port]/mysql_serverid/binlog_prefix,
+</code></pre>
+<p>注意%2F为转义符,用户名为root,密码为root.其中uri对应着mysql中的库名和表名.</p>
+<pre><code>{
+&quot;name&quot; : &quot;person&quot;,
+&quot;id&quot;  : 1,
+&quot;uri&quot; : &quot;mysql://root%2Froot@localhost:3306/1/mysql-bin&quot;,
+&quot;slowSourceQueryThreshold&quot; : 2000,
+&quot;sources&quot; :
+[
+    {
+    &quot;id&quot; : 40,
+    &quot;name&quot; : &quot;com.linkedin.events.example.or_test.Person&quot;,
+    &quot;uri&quot;: &quot;or_test.person&quot;,
+    &quot;partitionFunction&quot; : &quot;constant:1&quot;
+     }
+]
+}
+</code></pre>
+<p>databus2-example-relay-pkg/schemas_registry/下定义person的Avro schema文件com.linkedin.events.example.or_test.Person.1.avsc，其中1表示版本(Databus目前没有针对mysql提供生成Avro schema文件的工具，所以只能手工编写)具体内容如下所示：</p>
+<pre><code>{
+  &quot;name&quot; : &quot;Person_V1&quot;,
+  &quot;doc&quot; : &quot;Auto-generated Avro schema for sy$person. Generated at Dec 04, 2012 05:07:05 PM PST&quot;,
+  &quot;type&quot; : &quot;record&quot;,
+  &quot;meta&quot; : &quot;dbFieldName=person;pk=id;&quot;,
+  &quot;namespace&quot; : &quot;com.linkedin.events.example.or_test&quot;,
+  &quot;fields&quot; : [ {
+    &quot;name&quot; : &quot;id&quot;,
+    &quot;type&quot; : [ &quot;long&quot;, &quot;null&quot; ],
+    &quot;meta&quot; : &quot;dbFieldName=ID;dbFieldPosition=0;&quot;
+  }, {
+    &quot;name&quot; : &quot;firstName&quot;,
+    &quot;type&quot; : [ &quot;string&quot;, &quot;null&quot; ],
+    &quot;meta&quot; : &quot;dbFieldName=FIRST_NAME;dbFieldPosition=1;&quot;
+  }, {
+    &quot;name&quot; : &quot;lastName&quot;,
+    &quot;type&quot; : [ &quot;string&quot;, &quot;null&quot; ],
+    &quot;meta&quot; : &quot;dbFieldName=LAST_NAME;dbFieldPosition=2;&quot;
+  }, {
+    &quot;name&quot; : &quot;birthDate&quot;,
+    &quot;type&quot; : [ &quot;long&quot;, &quot;null&quot; ],
+    &quot;meta&quot; : &quot;dbFieldName=BIRTH_DATE;dbFieldPosition=3;&quot;
+  }, {
+    &quot;name&quot; : &quot;deleted&quot;,
+    &quot;type&quot; : [ &quot;string&quot;, &quot;null&quot; ],
+    &quot;meta&quot; : &quot;dbFieldName=DELETED;dbFieldPosition=4;&quot;
+  } ]
+}
+</code></pre>
+<p>注册Avro schema到index.schemas_registry文件databus2-example-relay-pkg/schemas_registry/index.schemas_registry文件中,
+添加行com.linkedin.events.example.or_test.Person.1.avsc ，每定义一个Avro schema都需要添加进去，relay运行时会到此文件中查找表对应的定义的Avro schema。</p>
+<h2 id="部署启动">部署启动</h2>
+<p>进入databus根目录执行命令gradle -Dopen_source=true assemble即可完成build,成功后在databus根目录下生成名为build的文件夹</p>
+<h3 id="启动relay">启动Relay:</h3>
+<ul>
+<li>cd build/databus2-example-relay-pkg/distributions</li>
+<li>tar -zxvf databus2-example-relay-pkg.tar.gz解压</li>
+<li>执行启动脚本 ./bin/start-example-relay.sh or_person -Y ./conf/sources-or-person.json</li>
+<li>执行命令 curl -s http://localhost:11115/sources 返回如下内容说明启动成功：</li>
+</ul>
+<h3 id="启动-client">启动 Client:</h3>
+<ul>
+<li>cd build/databus2-example-client-pkg/distributions</li>
+<li>tar -zxvf databus2-example-client-pkg.tar.gz解压</li>
+<li>执行启动脚本 ./bin/start-example-client.sh person
+执行命令 curl http://localhost:11115/relayStats/outbound/http/clients 返回如下内容说明启动成功：</li>
+</ul>
+<h2 id="测试">测试</h2>
+<p>Relay和Client启动成功后，就已经开始对person表进行数据变更捕获了，现在向person表插入一条数据:</p>
+<pre><code>INSERT person VALUES (1,'zhangsan','lisi',20371231235959,0);
+</code></pre>
+<p>databus2-example-relay-pkg/distributions/logs下的relay.log记录如下:</p>
+<pre><code>2017-12-19 18:44:01,356 +148827 [ORListener_person] (INFO) {OpenReplicator_person} BEGIN sql: BEGIN
+2017-12-19 18:44:01,357 +148828 [ORListener_person] (INFO) {OpenReplicator_person} startXtionQueryEvent[header=BinlogEventV4HeaderImpl[timestamp=1513680243000,eventType=2,serverId=1,eventLength=71,nextPosition=596,flags=8,timestampOfReceipt=1513680241355],threadId=1,elapsedTime=0,databaseNameLength=7,errorCode=0,statusVariablesLength=26,statusVariables=[QFlags2Code[flags=0], QSQLModeCode[sqlMode=2097152], QCatalogNzCode[catalogName=std], QCharsetCode[characterSetClient=33,collationConnection=33,collationServer=8]],databaseName=or_test,sql=BEGIN]
+2017-12-19 18:44:01,357 +148828 [ORListener_person] (INFO) {DatabusThreadBase} Starting source: or_test.person
+2017-12-19 18:44:01,357 +148828 [ORListener_person] (INFO) {DatabusThreadBase} INSERT INTO or_test.person
+2017-12-19 18:44:01,359 +148830 [transactionWriter] (INFO) {person} src:com.linkedin.events.example.or_test.Person(40) #src:1 #evt:1 scn:34359739022 ms:-1 sizeInBytes:28 msEvent:1 msTimeElapsed:0 msQueryExec:-1 prodRate:0.00 consRate:-28.00
+2017-12-19 18:44:01,363 +148834 [transactionWriter] (INFO) {person} src:person(0) #src:1 #evt:1 scn:34359739022 ms:-1 sizeInBytes:28 msEvent:1 msTimeElapsed:0 msQueryExec:-1 prodRate:0.00 consRate:-28.00
+</code></pre>
+<p>databus2-example-client-pkg/distributions/logs下的client.log记录如下：</p>
+<pre><code>2017-12-19 18:44:23,444 +443 [callback-1] (INFO) {PersonConsumer} firstName: zhangsan, lastName: lisi, birthDate: 2145801600000, deleted: 0
+</code></pre>
+<p>至此,demo搭建完成.</p>
+<h2 id="参考资料">参考资料</h2>
+<ul>
+<li><a href="https://github.com/linkedin/databus">databus GitHub地址</a></li>
+<li><a href="http://www.jianshu.com/p/9df54eb1ec35">linkedin 的 databus 部署(简书)</a></li>
+<li><a href="http://tech.lede.com/2017/05/24/rd/server/databus/">Databus架构分析与初步实践（for mysql）</a></li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[在Ubuntu17上安装Docker]]></title>
+        <id>/Users/zhubingxu/SynologyDrive/博客/output/post/zai-ubuntu17-shang-an-zhuang-docker/index.html</id>
+        <link href="/Users/zhubingxu/SynologyDrive/博客/output/post/zai-ubuntu17-shang-an-zhuang-docker/index.html">
+        </link>
+        <updated>2017-11-17T12:35:17.000Z</updated>
+        <summary type="html"><![CDATA[<p>在Ubuntu17上安装Docker</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>在Ubuntu17上安装Docker</p>
+<!-- more -->
+<h1 id="准备">准备</h1>
+<ul>
+<li>
+<p>首先安装Docker所需的依赖</p>
+<pre><code>sudo apt-get update
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+</code></pre>
+</li>
+</ul>
+<h1 id="安装">安装</h1>
+<ul>
+<li>
+<p>为了确认所下载软件包的合法性，需要添加软件源的 GPG 密钥。</p>
+<pre><code>curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+</code></pre>
+</li>
+<li>
+<p>通过搜索指纹的最后8个字符，确认您现在已经拥有指纹9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88的密钥。</p>
+<pre><code>sudo apt-key fingerprint 0EBFCD88
+</code></pre>
+</li>
+<li>
+<p>添加docker源</p>
+<pre><code>sudo add-apt-repository &quot;deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable&quot;
+</code></pre>
+</li>
+<li>
+<p>更新apt-get并安装docker</p>
+<pre><code>sudo apt-get update
+sudo apt-get install docker-ce
+</code></pre>
+</li>
+<li>
+<p>启动docker</p>
+<pre><code>sudo service docker start
+</code></pre>
+</li>
+</ul>
+<h1 id="问题">问题</h1>
+<ul>
+<li>
+<p>如果运行命令遇到问题</p>
+<pre><code>dial unix /var/run/docker.sock: permission denied.Are you trying to connect to a TLS-enabled
+</code></pre>
+<p>解决方法：</p>
+<p>把当前用户加入docker用户组。</p>
+<pre><code>  sudo gpasswd -a ${USER} docker
+</code></pre>
+<p>查看是否添加成功：</p>
+<pre><code>  cat /etc/group | grep ^docker
+</code></pre>
+<p>重启docker</p>
+<pre><code>  sudo serivce docker restart
+</code></pre>
+<p>如果重启后不成功，退出当前账户重新登录。</p>
+</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[erlang加载crypto时openssl缺失解决方案]]></title>
+        <id>/Users/zhubingxu/SynologyDrive/博客/output/post/erlang-jia-zai-crypto-shi-openssl-que-shi-jie-jue-fang-an/index.html</id>
+        <link href="/Users/zhubingxu/SynologyDrive/博客/output/post/erlang-jia-zai-crypto-shi-openssl-que-shi-jie-jue-fang-an/index.html">
+        </link>
+        <updated>2017-11-15T11:27:04.000Z</updated>
+        <summary type="html"><![CDATA[<p>erlang安装好erlang后使用crypto模块时报错,错误信息如下:</p>
+<pre><code>Unable to load crypto library. Failed with error:
+&quot;load_failed, Failed to load NIF library: '/opt/app/mskyprocess/opt/otp183/lib/erlang/lib/crypto-3.7.3/priv/lib/crypto.so: undefined symbol: EC_GROUP_new_curve_GF2m'&quot;
+OpenSSL might not be installed on this system.
+
+=WARNING REPORT==== 15-Nov-2017::19:24:03 ===
+The on_load function for module crypto returned {error,
+ {load_failed,
+  &quot;Failed to load NIF library: '/opt/app/mskyprocess/opt/otp183/lib/erlang/lib/crypto-3.7.3/priv/lib/crypto.so: undefined symbol: EC_GROUP_new_curve_GF2m'&quot;}}</code></pre>
+]]></summary>
+        <content type="html"><![CDATA[<p>erlang安装好erlang后使用crypto模块时报错,错误信息如下:</p>
+<pre><code>Unable to load crypto library. Failed with error:
+&quot;load_failed, Failed to load NIF library: '/opt/app/mskyprocess/opt/otp183/lib/erlang/lib/crypto-3.7.3/priv/lib/crypto.so: undefined symbol: EC_GROUP_new_curve_GF2m'&quot;
+OpenSSL might not be installed on this system.
+
+=WARNING REPORT==== 15-Nov-2017::19:24:03 ===
+The on_load function for module crypto returned {error,
+ {load_failed,
+  &quot;Failed to load NIF library: '/opt/app/mskyprocess/opt/otp183/lib/erlang/lib/crypto-3.7.3/priv/lib/crypto.so: undefined symbol: EC_GROUP_new_curve_GF2m'&quot;}}
+</code></pre>
+<!-- more -->
+<p>解决方法:</p>
+<ol>
+<li>
+<p>下载openssl源码
+wget http://www.openssl.org/source/openssl-1.0.1f.tar.gz</p>
+<pre><code> tar zxvf openssl-1.0.1f.tar.gz
+</code></pre>
+</li>
+<li>
+<p>进入源码目录，如果不是新下载解压的目录，而且以前有编译安装过的，进入目录后执行make clean以确保能重新编译
+cd openssl-1.0.1f</p>
+</li>
+<li>
+<p>为了不要和已安装的openssl混淆，这里指定一个新的安装目录
+./config --prefix=/opt/ssl</p>
+</li>
+<li>
+<p>config之后，会生成Makefile，打开Makefile找到gcc，在CFLAG参数列表里加上-fPIC</p>
+</li>
+</ol>
+<p>vim Makefile</p>
+<pre><code>    CC= gcc    
+    CFLAG= -fPIC -DOPENSSL_THREADS -D_REENTRANT -DDSO_DLFCN -DHAVE_DLFCN_H -Wa,--noexecstack -m64 -DL_ENDIAN -DTERMIO -O3 -Wall -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_MONT5 -DOPENSSL_BN_ASM_GF2m -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DAES_ASM -DVPAES_ASM -DBSAES_ASM -DWHIRLPOOL_ASM -DGHASH_ASM  
+</code></pre>
+<ol start="5">
+<li>
+<p>编译安装
+make &amp;&amp; make install</p>
+</li>
+<li>
+<p>现在进入你的erlang源码安装目录，如果已经编译安装过erlang，为确保能重新编译，先执行：
+make clean</p>
+</li>
+<li>
+<p>加上openssl安装路径重新configure，如果有安装多个版本的erlang，为了可以方便找到新安装的erl，这里可以指定一个新的安装目录，示例如下：
+./configure --with-ssl=/opt/ssl/ --prefix=/opt/erlang</p>
+</li>
+<li>
+<p>编译并安装
+make &amp;&amp; make install</p>
+</li>
+<li>
+<p>运行刚才安装的erlang</p>
+<p>/opt/erlang/bin/erl</p>
+<pre><code> Erlang/OTP 19 [erts-8.3] [source] [64-bit] [smp:2:2] [async-threads:10] [hipe] [kernel-poll:false]
+ Eshell V8.3  (abort with ^G)
+ 1&gt; crypto:start().  
+ ok
+ 2&gt;
+</code></pre>
+</li>
+</ol>
+<p>参考链接: http://blog.csdn.net/zhongruixian/article/details/21076405</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[解决编译安装erlang时ncurses缺失]]></title>
+        <id>/Users/zhubingxu/SynologyDrive/博客/output/post/jie-jue-bian-yi-an-zhuang-erlang-shi-ncurses-que-shi/index.html</id>
+        <link href="/Users/zhubingxu/SynologyDrive/博客/output/post/jie-jue-bian-yi-an-zhuang-erlang-shi-ncurses-que-shi/index.html">
+        </link>
+        <updated>2017-11-14T06:56:59.000Z</updated>
+        <summary type="html"><![CDATA[<p>公司的服务器无法访问外网,因此需要下载好软件后传到服务器上进行编译
+安装erlang时出现了如下问题</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>公司的服务器无法访问外网,因此需要下载好软件后传到服务器上进行编译
+安装erlang时出现了如下问题</p>
+<!-- more -->
+<pre><code>checking for tgetent in -ltinfo... no
+checking for tgetent in -lncurses... no
+checking for tgetent in -lcurses... no
+checking for tgetent in -ltermcap... no
+checking for tgetent in -ltermlib... no
+configure: error: No curses library functions found
+configure: error: /bin/sh '/home/jboss5/umechat/otp_src_19.3/erts/configure' failed for erts
+</code></pre>
+<p>原因:
+缺少ncurses安装包</p>
+<p>因此到<a href="http://ftp.gnu.org/gnu/ncurses/">这里</a>下载ncuroses.
+我选择的是最新版<a href="http://ftp.gnu.org/gnu/ncurses/ncurses-6.0.tar.gz">ncurses-6.0.tar.gz</a>
+执行以下命令:</p>
+<pre><code>tar -zxvf ncurses-6.0.tar.gz
+cd ncurses-6.0
+./configure --with-shared --without-debug --without-ada --enable-overwrite
+make
+make install
+</code></pre>
+<p>ncurses完成安装后再次安装erlang即可</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[在Ubuntu Server下安装Dropbox]]></title>
+        <id>/Users/zhubingxu/SynologyDrive/博客/output/post/zai-ubuntu-server-xia-an-zhuang-dropbox/index.html</id>
+        <link href="/Users/zhubingxu/SynologyDrive/博客/output/post/zai-ubuntu-server-xia-an-zhuang-dropbox/index.html">
+        </link>
+        <updated>2017-10-18T22:00:54.000Z</updated>
+        <summary type="html"><![CDATA[<p>服务器和本地之间要同步东西,总是用ftp挺烦的.发现Dropbox有Linux server版,刚好服务器处于海外不需要翻墙,于是安装一个用来同步文件.</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>服务器和本地之间要同步东西,总是用ftp挺烦的.发现Dropbox有Linux server版,刚好服务器处于海外不需要翻墙,于是安装一个用来同步文件.</p>
+<!-- more -->
+<h2 id="安装">安装</h2>
+<h3 id="安装主程序">安装主程序</h3>
+<p>通过命令行下载安装Dropbox</p>
+<pre><code>cd ~ &amp;&amp; wget -O - &quot;https://www.dropbox.com/download?plat=lnx.x86_64&quot; | tar xzf -
+</code></pre>
+<p>安装完成后启动dropbox</p>
+<pre><code>~/.dropbox-dist/dropboxd
+</code></pre>
+<p>如果是首次在服务器上运行 Dropbox，系统会要求将链接复制并粘贴到运行的浏览器中，以便创建一个新的帐户或将服务器附加到现有帐户上。操作完成后，系统会在主目录中创建 Dropbox 文件夹。</p>
+<h3 id="下载控制脚本">下载控制脚本</h3>
+<p>安装完成后下载这个<a href="https://www.dropbox.com/download?dl=packages/dropbox.py">python脚本</a>用来控制Dropbox.</p>
+<p>脚本参数如下:</p>
+<pre><code>status       查看Dropbox状态
+throttle     设置带宽限制
+help         提供帮助
+puburl       获取public文件分享链接
+stop         停止dropbox
+running      返回dropbox运行状态
+start        启动dropbox
+filestatus   获取文件同步状态
+ls           列出当前目录同步状态
+autostart    登录时自动启动dropbox
+exclude      不同步的文件或文件夹
+lansync      开启/关闭 lan 同步
+sharelink    分享链接
+proxy        设置代理
+</code></pre>
+<h2 id="使用方法">使用方法</h2>
+<h3 id="查看状态">查看状态</h3>
+<p>在命令行中输入</p>
+<pre><code>python dropbox.py filestatus
+</code></pre>
+<p>可查看当前同步状态</p>
+<pre><code>.dropbox:       unwatched
+cat.sql:        up to date
+dropbox.py:     syncing
+project:        syncing
+sendmail:       syncing
+Works:          syncing
+个人文件:        syncing
+</code></pre>
+<h3 id="排除不需要同步的文件文件夹">排除不需要同步的文件/文件夹</h3>
+<p>在Dropbox/ 下输入以下命令</p>
+<pre><code>python dropbox.py add 被排除的文件名
+</code></pre>
+<p>即可将该文件排除.</p>
+<p>取消排除</p>
+<pre><code>python dropbox.py remove 被排除的文件名
+</code></pre>
+<p>则可以重新同步该文件</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[用Hexo搭建个人博客]]></title>
+        <id>/Users/zhubingxu/SynologyDrive/博客/output/post/yong-hexo-da-jian-ge-ren-bo-ke/index.html</id>
+        <link href="/Users/zhubingxu/SynologyDrive/博客/output/post/yong-hexo-da-jian-ge-ren-bo-ke/index.html">
+        </link>
+        <updated>2017-10-18T18:40:36.000Z</updated>
+        <summary type="html"><![CDATA[<p>有了VPS,可以用来科学上网,也可以搭建一个博客写一些东西.比较了各种博客框架最后选择了Hexo搭建博客.</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>有了VPS,可以用来科学上网,也可以搭建一个博客写一些东西.比较了各种博客框架最后选择了Hexo搭建博客.</p>
+<!-- more -->
+<h2 id="准备">准备</h2>
+<ul>
+<li>
+<p>VPS</p>
+<pre><code>  系统不限,我采用的是Ubuntu 17.0.4
+</code></pre>
+</li>
+<li>
+<p>域名</p>
+<pre><code>  随便一个域名都行,没什么硬性要求
+</code></pre>
+</li>
+</ul>
+<h2 id="环境配置">环境配置</h2>
+<h3 id="安装nodejs">安装node.js</h3>
+<p>Hexo依赖node.js环境,因此我们需要先配置好node.js.
+在命令行下输入</p>
+<pre><code>    sudo apt-get update
+    sudo apt-get install -y python-software-properties software-properties-common  
+    sudo  add-apt-repository ppa:chris-lea/node.js  
+    sudo apt-get update  
+    sudo apt-get install nodejs 
+    sudo apt install nodejs-legacy
+</code></pre>
+<p>完成安装</p>
+<h3 id="安装git">安装Git</h3>
+<p>在命令行下输入</p>
+<pre><code>sudo apt-get install git
+</code></pre>
+<p>进行安装</p>
+<h2 id="搭建hexo">搭建Hexo</h2>
+<h4 id="安装">安装</h4>
+<p>命令行下输入</p>
+<pre><code>npm install -g hexo-cli
+</code></pre>
+<p>安装 Hexo 完成后，执行下列命令，Hexo 将会在指定文件夹中新建所需要的文件。</p>
+<pre><code>$ hexo init &lt;folder&gt;
+$ cd &lt;folder&gt;
+$ npm install
+</code></pre>
+<p>新建完成后，指定文件夹的目录如下：</p>
+<pre><code>.
+├── _config.yml
+├── package.json
+├── scaffolds
+├── source
+|   ├── _drafts
+|   └── _posts
+└── themes    
+</code></pre>
+<p>在命令行下输入</p>
+<pre><code>hexo server
+</code></pre>
+<p>然后登录http://127.0.0.1:4000 即可查看效果
+<img src="/Users/zhubingxu/SynologyDrive/%E5%8D%9A%E5%AE%A2/output/post-images/1558853479160.jpeg" alt=""></p>
+<h2 id="hexo的使用">Hexo的使用</h2>
+<h4 id="新建一篇文章">新建一篇文章</h4>
+<p>在创建的hexo根目录下输入以下命令</p>
+<pre><code>hexo new &quot;new page&quot;
+</code></pre>
+<p>即可在 source/_posts 目录下创建一篇新文章 new_page.md
+通过文本编辑器打开,可修改添加以下的配置</p>
+<pre><code>---
+title: 用Hexo搭建个人博客 #文章标题
+date: 2017-10-19 02:40:36 #文章生成时间
+categories: 服务器 #文章的分类,可忽略
+tags: #文章标签,可忽略
+- Hexo
+- Linux
+description:#你对本页的描述,可忽略
+---
+</code></pre>
+<p>写文章需要使用markdown语法,如果不知道markdown语法是什么可以参考<a href="https://sspai.com/25137/">这里</a></p>
+<h4 id="更换主题">更换主题</h4>
+<p>以next主题为例在hexo的目录下输入</p>
+<pre><code>git clone --branch v5.1.2 https://github.com/iissnan/hexo-theme-next themes/next
+</code></pre>
+<p>然后打开_config.yml文件,修改theme字段.
+更多主题及配置参考<a href="https://hexo.io/themes/">这里</a></p>
+]]></content>
+    </entry>
+</feed>

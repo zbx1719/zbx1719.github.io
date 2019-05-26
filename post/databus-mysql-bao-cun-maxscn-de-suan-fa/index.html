@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title> ehcache持久化到硬盘index丢失问题 | 杂记</title>
+<title>Databus Mysql保存MaxScn的算法 | 杂记</title>
 <meta name="description" content="温故而知新">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -102,72 +102,75 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title"> ehcache持久化到硬盘index丢失问题</h2>
-            <div class="post-date">2018-03-06</div>
+            <h2 class="post-title">Databus Mysql保存MaxScn的算法</h2>
+            <div class="post-date">2019-05-26</div>
             
             <div class="post-content">
-              <p>ehcache持久化到硬盘后会出现以.index结尾的索引文件和以.data结尾的数据文件.当ehcache重启时会从硬盘中加载数据缓存到内存中.</p>
+              <p>databus oracle保存scn采用oracle原生的scn号，Mysql的scn是通过算法计算出来的。MaxScn是一个64位的long型数据。</p>
 <!-- more -->
-<h1 id="问题">问题</h1>
-<p>当ehcache配置好后向ehcache中插入数据,正常停止ehcache时本地可以看到已经持久化到本地的文件</p>
-<pre><code>total 16
--rw-r--r--  1 zhubingxu  staff   2.1K  3  6 14:57 %0043itycode_%00561.data
--rw-r--r--  1 zhubingxu  staff   273B  3  6 14:57 %0043itycode_%00561.index
-</code></pre>
-<p>这时候持久化数据是正常的.然而当服务停止后我们通过自己封装的接口直接查询EhCache中的数据时会发现第一次查询返回的结果是正常的,第二次查询发现返回的结果为null.</p>
-<pre><code>第一次调用结果
-1520317305023
-
-第二次调用结果
-null
-</code></pre>
-<p>查看持久化文件发现.data文件还存在而.index索引文件丢失了.</p>
-<h1 id="原因">原因</h1>
-<p>ehcache恢复数据是根据.index索引文件来进行数据恢复的.当程序运行后,ehcache的一个方法会将.data文件和.index文件的修改时间进行比较,如果不符合直接将.index文件删除.第一次调用后.index文件的修改时间不会变,而.data的修改时间会变成当前时间.所以第二次查询时由于修改时间的变化导致.index文件被删除无法加载之前缓存中的数据,返回null.</p>
-<pre><code>第一次调用时的结果
-可以发现.data文件时间更新了
-total 16
--rw-r--r--  1 zhubingxu  staff   2.1K  3  6 15:38 %0043itycode_%00561.data
--rw-r--r--  1 zhubingxu  staff   273B  3  6 14:57 %0043itycode_%00561.index
-</code></pre>
-<p>而ehcache的.index文件和.data文件时间不一致的原因是ehcache是在停止的时候通过触发一个事件来生成.index文件的,而我们非正常停止是不会触发这个事件的,这就导致.data时间更新了而.index时间不变.</p>
-<h1 id="解决办法">解决办法</h1>
-<p>因为非正常关闭是不会触发写入.index文件这个方法,因此我们就要手动来执行这个方法.
-首先在static中加入这行代码</p>
-<pre><code>System.setProperty(net.sf.ehcache.CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY,&quot;true&quot;);
-</code></pre>
-<p>如下所示</p>
-<pre><code>static {
-try {
-    InputStream inputStream = EhCacheWrap.class.getResourceAsStream(&quot;/databuscache.xml&quot;);
-    System.setProperty(net.sf.ehcache.CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY,&quot;true&quot;);
-    manager = new CacheManager(inputStream);
-    if (manager == null) {
-        manager = CacheManager.create();
-    }
-} catch (CacheException var1) {
-    var1.printStackTrace();
-    System.out.println(&quot;！！！Initialize cache manager failed.&quot; + var1);
-    logger.fatal(&quot;！！！Initialize cache manager failed.&quot;, var1);
+<h2 id="id和position转成maxscn">id和position转成MaxScn</h2>
+<p>databus会将mysql的binlog file id和position读出来，例如file name为mysql-bin.000028，id为000028，position为208272177。
+拿到id和position后通过位运算将000028左移32位转成120259084288作为MaxScn的高32位，将208272177作为MaxScn的低32位。
+120259084288 与208272177进行或运算(|)得到120467356465即为当前的scn。</p>
+<pre><code class="language-java">/**
+ * Creates the SCN from logId and offset
+ *   SCN = {          Logid           }{         Offset         }
+ *         |--- High Order 32 bits ---||--- Low Order 32 bits --|
+ * @param logId
+ * @param offset
+ * @return
+ */
+public static long scn(int logId, int offset)
+{
+  long scn = logId;
+  scn &lt;&lt;= 32;
+  scn |= offset;
+  return scn;
 }
+
 </code></pre>
-<p>}</p>
-<p>然后在每次getCache()后都要调用flush()方法实时写入硬盘.</p>
-<pre><code>Cache cache=manager.getCache(arg0);
-cache.flush();
+<h2 id="maxscn转成id和position">MaxScn转成id和position</h2>
+<p>从数据库中加载时同理，将当前scn 120467356465右移32位，低32位的会丢失，只剩下28即为binlog file id，然后再将scn  120467356465和0xFFFFFFFF进行与运算(&amp;)，相当于取scn的低32位即为position的值208272177。</p>
+<pre><code class="language-java">/**
+ * Returns the logid ( upper 32 bits  of the SCN )
+ * For e.g., mysql-bin.000001 is said to have an id 000001
+ */
+public static int logid(long scn)
+{
+  // During startup, read from the first binlog file
+  if (scn == -1 || scn == 0)
+  {
+    return 1;
+  }
+  return (int)((scn &gt;&gt; 32) &amp; 0xFFFFFFFF);
+}
+
+/**
+ * Returns the binlogoffset ( lower 32 bits  of the SCN )
+ */
+public static int offset(long scn)
+{
+  // During startup, read from offset 0 (or should it be 4)
+  if (scn == -1 || scn == 0)
+  {
+    return 4;
+  }
+  return (int)(scn &amp; 0xFFFFFFFF);
+}
+
+
 </code></pre>
-<p>之后再测试就会发现读取缓存正常了,不会出现缓存丢失的情况</p>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://zbx1719.github.io/tag/MEs3-c6b5" class="tag">
-                    Java
+                  <a href="https://zbx1719.github.io/tag/GHbcOBabn" class="tag">
+                    Databus
                   </a>
                 
-                  <a href="https://zbx1719.github.io/tag/EaKfF5xfI" class="tag">
-                    Ehcache
+                  <a href="https://zbx1719.github.io/tag/MEs3-c6b5" class="tag">
+                    Java
                   </a>
                 
               </div>
@@ -175,9 +178,9 @@ cache.flush();
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://zbx1719.github.io/post/databus-bu-shu-oracle">
+                <a href="https://zbx1719.github.io/post/hello-gridea">
                   <h3 class="post-title">
-                    Databus部署(Oracle)
+                    Hello Gridea
                   </h3>
                 </a>
               </div>

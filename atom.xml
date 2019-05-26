@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zbx1719.github.io</id>
     <title>杂记</title>
-    <updated>2019-05-26T07:36:44.885Z</updated>
+    <updated>2019-05-26T07:38:56.098Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zbx1719.github.io"/>
     <link rel="self" href="https://zbx1719.github.io/atom.xml"/>
@@ -10,6 +10,70 @@
     <logo>https://zbx1719.github.io/images/avatar.png</logo>
     <icon>https://zbx1719.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, 杂记</rights>
+    <entry>
+        <title type="html"><![CDATA[Databus Mysql保存MaxScn的算法]]></title>
+        <id>https://zbx1719.github.io/post/databus-mysql-bao-cun-maxscn-de-suan-fa</id>
+        <link href="https://zbx1719.github.io/post/databus-mysql-bao-cun-maxscn-de-suan-fa">
+        </link>
+        <updated>2019-05-26T07:37:44.000Z</updated>
+        <summary type="html"><![CDATA[<p>databus oracle保存scn采用oracle原生的scn号，Mysql的scn是通过算法计算出来的。MaxScn是一个64位的long型数据。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>databus oracle保存scn采用oracle原生的scn号，Mysql的scn是通过算法计算出来的。MaxScn是一个64位的long型数据。</p>
+<!-- more -->
+<h2 id="id和position转成maxscn">id和position转成MaxScn</h2>
+<p>databus会将mysql的binlog file id和position读出来，例如file name为mysql-bin.000028，id为000028，position为208272177。
+拿到id和position后通过位运算将000028左移32位转成120259084288作为MaxScn的高32位，将208272177作为MaxScn的低32位。
+120259084288 与208272177进行或运算(|)得到120467356465即为当前的scn。</p>
+<pre><code class="language-java">/**
+ * Creates the SCN from logId and offset
+ *   SCN = {          Logid           }{         Offset         }
+ *         |--- High Order 32 bits ---||--- Low Order 32 bits --|
+ * @param logId
+ * @param offset
+ * @return
+ */
+public static long scn(int logId, int offset)
+{
+  long scn = logId;
+  scn &lt;&lt;= 32;
+  scn |= offset;
+  return scn;
+}
+
+</code></pre>
+<h2 id="maxscn转成id和position">MaxScn转成id和position</h2>
+<p>从数据库中加载时同理，将当前scn 120467356465右移32位，低32位的会丢失，只剩下28即为binlog file id，然后再将scn  120467356465和0xFFFFFFFF进行与运算(&amp;)，相当于取scn的低32位即为position的值208272177。</p>
+<pre><code class="language-java">/**
+ * Returns the logid ( upper 32 bits  of the SCN )
+ * For e.g., mysql-bin.000001 is said to have an id 000001
+ */
+public static int logid(long scn)
+{
+  // During startup, read from the first binlog file
+  if (scn == -1 || scn == 0)
+  {
+    return 1;
+  }
+  return (int)((scn &gt;&gt; 32) &amp; 0xFFFFFFFF);
+}
+
+/**
+ * Returns the binlogoffset ( lower 32 bits  of the SCN )
+ */
+public static int offset(long scn)
+{
+  // During startup, read from offset 0 (or should it be 4)
+  if (scn == -1 || scn == 0)
+  {
+    return 4;
+  }
+  return (int)(scn &amp; 0xFFFFFFFF);
+}
+
+
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
         <id>https://zbx1719.github.io/post/hello-gridea</id>
@@ -789,97 +853,6 @@ Works:          syncing
 <pre><code>python dropbox.py remove 被排除的文件名
 </code></pre>
 <p>则可以重新同步该文件</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[用Hexo搭建个人博客]]></title>
-        <id>https://zbx1719.github.io/post/yong-hexo-da-jian-ge-ren-bo-ke</id>
-        <link href="https://zbx1719.github.io/post/yong-hexo-da-jian-ge-ren-bo-ke">
-        </link>
-        <updated>2017-10-18T18:40:36.000Z</updated>
-        <summary type="html"><![CDATA[<p>有了VPS,可以用来科学上网,也可以搭建一个博客写一些东西.比较了各种博客框架最后选择了Hexo搭建博客.</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>有了VPS,可以用来科学上网,也可以搭建一个博客写一些东西.比较了各种博客框架最后选择了Hexo搭建博客.</p>
-<!-- more -->
-<h2 id="准备">准备</h2>
-<ul>
-<li>
-<p>VPS</p>
-<pre><code>  系统不限,我采用的是Ubuntu 17.0.4
-</code></pre>
-</li>
-<li>
-<p>域名</p>
-<pre><code>  随便一个域名都行,没什么硬性要求
-</code></pre>
-</li>
-</ul>
-<h2 id="环境配置">环境配置</h2>
-<h3 id="安装nodejs">安装node.js</h3>
-<p>Hexo依赖node.js环境,因此我们需要先配置好node.js.
-在命令行下输入</p>
-<pre><code>    sudo apt-get update
-    sudo apt-get install -y python-software-properties software-properties-common  
-    sudo  add-apt-repository ppa:chris-lea/node.js  
-    sudo apt-get update  
-    sudo apt-get install nodejs 
-    sudo apt install nodejs-legacy
-</code></pre>
-<p>完成安装</p>
-<h3 id="安装git">安装Git</h3>
-<p>在命令行下输入</p>
-<pre><code>sudo apt-get install git
-</code></pre>
-<p>进行安装</p>
-<h2 id="搭建hexo">搭建Hexo</h2>
-<h4 id="安装">安装</h4>
-<p>命令行下输入</p>
-<pre><code>npm install -g hexo-cli
-</code></pre>
-<p>安装 Hexo 完成后，执行下列命令，Hexo 将会在指定文件夹中新建所需要的文件。</p>
-<pre><code>$ hexo init &lt;folder&gt;
-$ cd &lt;folder&gt;
-$ npm install
-</code></pre>
-<p>新建完成后，指定文件夹的目录如下：</p>
-<pre><code>.
-├── _config.yml
-├── package.json
-├── scaffolds
-├── source
-|   ├── _drafts
-|   └── _posts
-└── themes    
-</code></pre>
-<p>在命令行下输入</p>
-<pre><code>hexo server
-</code></pre>
-<p>然后登录http://127.0.0.1:4000 即可查看效果
-<img src="https://zbx1719.github.io/post-images/1558853479160.jpeg" alt=""></p>
-<h2 id="hexo的使用">Hexo的使用</h2>
-<h4 id="新建一篇文章">新建一篇文章</h4>
-<p>在创建的hexo根目录下输入以下命令</p>
-<pre><code>hexo new &quot;new page&quot;
-</code></pre>
-<p>即可在 source/_posts 目录下创建一篇新文章 new_page.md
-通过文本编辑器打开,可修改添加以下的配置</p>
-<pre><code>---
-title: 用Hexo搭建个人博客 #文章标题
-date: 2017-10-19 02:40:36 #文章生成时间
-categories: 服务器 #文章的分类,可忽略
-tags: #文章标签,可忽略
-- Hexo
-- Linux
-description:#你对本页的描述,可忽略
----
-</code></pre>
-<p>写文章需要使用markdown语法,如果不知道markdown语法是什么可以参考<a href="https://sspai.com/25137/">这里</a></p>
-<h4 id="更换主题">更换主题</h4>
-<p>以next主题为例在hexo的目录下输入</p>
-<pre><code>git clone --branch v5.1.2 https://github.com/iissnan/hexo-theme-next themes/next
-</code></pre>
-<p>然后打开_config.yml文件,修改theme字段.
-更多主题及配置参考<a href="https://hexo.io/themes/">这里</a></p>
 ]]></content>
     </entry>
 </feed>

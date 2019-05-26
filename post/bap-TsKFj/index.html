@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" >
 
-<title>Databus Mysql保存MaxScn的算法 | 杂记</title>
+<title>解决编译安装erlang时ncurses缺失 | 杂记</title>
 <meta name="description" content="温故而知新">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558856334348">
+<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558856646047">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://zbx1719.github.io/styles/main.css">
 
@@ -36,7 +36,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://zbx1719.github.io">
-        <img src="https://zbx1719.github.io/images/avatar.png?v=1558856334348" class="site-logo">
+        <img src="https://zbx1719.github.io/images/avatar.png?v=1558856646047" class="site-logo">
         <h1 class="site-title">杂记</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -102,75 +102,44 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">Databus Mysql保存MaxScn的算法</h2>
-            <div class="post-date">2019-05-26</div>
+            <h2 class="post-title">解决编译安装erlang时ncurses缺失</h2>
+            <div class="post-date">2017-11-14</div>
             
             <div class="post-content">
-              <p>databus oracle保存scn采用oracle原生的scn号，Mysql的scn是通过算法计算出来的。MaxScn是一个64位的long型数据。</p>
+              <p>公司的服务器无法访问外网,因此需要下载好软件后传到服务器上进行编译
+安装erlang时出现了如下问题</p>
 <!-- more -->
-<h2 id="id和position转成maxscn">id和position转成MaxScn</h2>
-<p>databus会将mysql的binlog file id和position读出来，例如file name为mysql-bin.000028，id为000028，position为208272177。
-拿到id和position后通过位运算将000028左移32位转成120259084288作为MaxScn的高32位，将208272177作为MaxScn的低32位。
-120259084288 与208272177进行或运算(|)得到120467356465即为当前的scn。</p>
-<pre><code class="language-java">/**
- * Creates the SCN from logId and offset
- *   SCN = {          Logid           }{         Offset         }
- *         |--- High Order 32 bits ---||--- Low Order 32 bits --|
- * @param logId
- * @param offset
- * @return
- */
-public static long scn(int logId, int offset)
-{
-  long scn = logId;
-  scn &lt;&lt;= 32;
-  scn |= offset;
-  return scn;
-}
-
+<pre><code>checking for tgetent in -ltinfo... no
+checking for tgetent in -lncurses... no
+checking for tgetent in -lcurses... no
+checking for tgetent in -ltermcap... no
+checking for tgetent in -ltermlib... no
+configure: error: No curses library functions found
+configure: error: /bin/sh '/home/jboss5/umechat/otp_src_19.3/erts/configure' failed for erts
 </code></pre>
-<h2 id="maxscn转成id和position">MaxScn转成id和position</h2>
-<p>从数据库中加载时同理，将当前scn 120467356465右移32位，低32位的会丢失，只剩下28即为binlog file id，然后再将scn  120467356465和0xFFFFFFFF进行与运算(&amp;)，相当于取scn的低32位即为position的值208272177。</p>
-<pre><code class="language-java">/**
- * Returns the logid ( upper 32 bits  of the SCN )
- * For e.g., mysql-bin.000001 is said to have an id 000001
- */
-public static int logid(long scn)
-{
-  // During startup, read from the first binlog file
-  if (scn == -1 || scn == 0)
-  {
-    return 1;
-  }
-  return (int)((scn &gt;&gt; 32) &amp; 0xFFFFFFFF);
-}
-
-/**
- * Returns the binlogoffset ( lower 32 bits  of the SCN )
- */
-public static int offset(long scn)
-{
-  // During startup, read from offset 0 (or should it be 4)
-  if (scn == -1 || scn == 0)
-  {
-    return 4;
-  }
-  return (int)(scn &amp; 0xFFFFFFFF);
-}
-
-
+<p>原因:
+缺少ncurses安装包</p>
+<p>因此到<a href="http://ftp.gnu.org/gnu/ncurses/">这里</a>下载ncuroses.
+我选择的是最新版<a href="http://ftp.gnu.org/gnu/ncurses/ncurses-6.0.tar.gz">ncurses-6.0.tar.gz</a>
+执行以下命令:</p>
+<pre><code>tar -zxvf ncurses-6.0.tar.gz
+cd ncurses-6.0
+./configure --with-shared --without-debug --without-ada --enable-overwrite
+make
+make install
 </code></pre>
+<p>ncurses完成安装后再次安装erlang即可</p>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://zbx1719.github.io/tag/GHbcOBabn" class="tag">
-                    Databus
+                  <a href="https://zbx1719.github.io/tag/GbM5pv7F_" class="tag">
+                    Erlang
                   </a>
                 
-                  <a href="https://zbx1719.github.io/tag/MEs3-c6b5" class="tag">
-                    Java
+                  <a href="https://zbx1719.github.io/tag/yNg9SjLcu" class="tag">
+                    Linux
                   </a>
                 
               </div>
@@ -178,9 +147,9 @@ public static int offset(long scn)
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://zbx1719.github.io/post/hello-gridea">
+                <a href="https://zbx1719.github.io/post/NlzgV9ZB5">
                   <h3 class="post-title">
-                    Hello Gridea
+                    在Ubuntu Server下安装Dropbox
                   </h3>
                 </a>
               </div>

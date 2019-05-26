@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" >
 
-<title>erlang加载crypto时openssl缺失解决方案 | 杂记</title>
+<title> ehcache持久化到硬盘index丢失问题 | 杂记</title>
 <meta name="description" content="温故而知新">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558856334348">
+<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558856646047">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://zbx1719.github.io/styles/main.css">
 
@@ -36,7 +36,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://zbx1719.github.io">
-        <img src="https://zbx1719.github.io/images/avatar.png?v=1558856334348" class="site-logo">
+        <img src="https://zbx1719.github.io/images/avatar.png?v=1558856646047" class="site-logo">
         <h1 class="site-title">杂记</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -102,81 +102,72 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">erlang加载crypto时openssl缺失解决方案</h2>
-            <div class="post-date">2017-11-15</div>
+            <h2 class="post-title"> ehcache持久化到硬盘index丢失问题</h2>
+            <div class="post-date">2018-03-06</div>
             
             <div class="post-content">
-              <p>erlang安装好erlang后使用crypto模块时报错,错误信息如下:</p>
-<pre><code>Unable to load crypto library. Failed with error:
-&quot;load_failed, Failed to load NIF library: '/opt/app/mskyprocess/opt/otp183/lib/erlang/lib/crypto-3.7.3/priv/lib/crypto.so: undefined symbol: EC_GROUP_new_curve_GF2m'&quot;
-OpenSSL might not be installed on this system.
-
-=WARNING REPORT==== 15-Nov-2017::19:24:03 ===
-The on_load function for module crypto returned {error,
- {load_failed,
-  &quot;Failed to load NIF library: '/opt/app/mskyprocess/opt/otp183/lib/erlang/lib/crypto-3.7.3/priv/lib/crypto.so: undefined symbol: EC_GROUP_new_curve_GF2m'&quot;}}
-</code></pre>
+              <p>ehcache持久化到硬盘后会出现以.index结尾的索引文件和以.data结尾的数据文件.当ehcache重启时会从硬盘中加载数据缓存到内存中.</p>
 <!-- more -->
-<p>解决方法:</p>
-<ol>
-<li>
-<p>下载openssl源码
-wget http://www.openssl.org/source/openssl-1.0.1f.tar.gz</p>
-<pre><code> tar zxvf openssl-1.0.1f.tar.gz
+<h1 id="问题">问题</h1>
+<p>当ehcache配置好后向ehcache中插入数据,正常停止ehcache时本地可以看到已经持久化到本地的文件</p>
+<pre><code>total 16
+-rw-r--r--  1 zhubingxu  staff   2.1K  3  6 14:57 %0043itycode_%00561.data
+-rw-r--r--  1 zhubingxu  staff   273B  3  6 14:57 %0043itycode_%00561.index
 </code></pre>
-</li>
-<li>
-<p>进入源码目录，如果不是新下载解压的目录，而且以前有编译安装过的，进入目录后执行make clean以确保能重新编译
-cd openssl-1.0.1f</p>
-</li>
-<li>
-<p>为了不要和已安装的openssl混淆，这里指定一个新的安装目录
-./config --prefix=/opt/ssl</p>
-</li>
-<li>
-<p>config之后，会生成Makefile，打开Makefile找到gcc，在CFLAG参数列表里加上-fPIC</p>
-</li>
-</ol>
-<p>vim Makefile</p>
-<pre><code>    CC= gcc    
-    CFLAG= -fPIC -DOPENSSL_THREADS -D_REENTRANT -DDSO_DLFCN -DHAVE_DLFCN_H -Wa,--noexecstack -m64 -DL_ENDIAN -DTERMIO -O3 -Wall -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_MONT5 -DOPENSSL_BN_ASM_GF2m -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DAES_ASM -DVPAES_ASM -DBSAES_ASM -DWHIRLPOOL_ASM -DGHASH_ASM  
+<p>这时候持久化数据是正常的.然而当服务停止后我们通过自己封装的接口直接查询EhCache中的数据时会发现第一次查询返回的结果是正常的,第二次查询发现返回的结果为null.</p>
+<pre><code>第一次调用结果
+1520317305023
+
+第二次调用结果
+null
 </code></pre>
-<ol start="5">
-<li>
-<p>编译安装
-make &amp;&amp; make install</p>
-</li>
-<li>
-<p>现在进入你的erlang源码安装目录，如果已经编译安装过erlang，为确保能重新编译，先执行：
-make clean</p>
-</li>
-<li>
-<p>加上openssl安装路径重新configure，如果有安装多个版本的erlang，为了可以方便找到新安装的erl，这里可以指定一个新的安装目录，示例如下：
-./configure --with-ssl=/opt/ssl/ --prefix=/opt/erlang</p>
-</li>
-<li>
-<p>编译并安装
-make &amp;&amp; make install</p>
-</li>
-<li>
-<p>运行刚才安装的erlang</p>
-<p>/opt/erlang/bin/erl</p>
-<pre><code> Erlang/OTP 19 [erts-8.3] [source] [64-bit] [smp:2:2] [async-threads:10] [hipe] [kernel-poll:false]
- Eshell V8.3  (abort with ^G)
- 1&gt; crypto:start().  
- ok
- 2&gt;
+<p>查看持久化文件发现.data文件还存在而.index索引文件丢失了.</p>
+<h1 id="原因">原因</h1>
+<p>ehcache恢复数据是根据.index索引文件来进行数据恢复的.当程序运行后,ehcache的一个方法会将.data文件和.index文件的修改时间进行比较,如果不符合直接将.index文件删除.第一次调用后.index文件的修改时间不会变,而.data的修改时间会变成当前时间.所以第二次查询时由于修改时间的变化导致.index文件被删除无法加载之前缓存中的数据,返回null.</p>
+<pre><code>第一次调用时的结果
+可以发现.data文件时间更新了
+total 16
+-rw-r--r--  1 zhubingxu  staff   2.1K  3  6 15:38 %0043itycode_%00561.data
+-rw-r--r--  1 zhubingxu  staff   273B  3  6 14:57 %0043itycode_%00561.index
 </code></pre>
-</li>
-</ol>
-<p>参考链接: http://blog.csdn.net/zhongruixian/article/details/21076405</p>
+<p>而ehcache的.index文件和.data文件时间不一致的原因是ehcache是在停止的时候通过触发一个事件来生成.index文件的,而我们非正常停止是不会触发这个事件的,这就导致.data时间更新了而.index时间不变.</p>
+<h1 id="解决办法">解决办法</h1>
+<p>因为非正常关闭是不会触发写入.index文件这个方法,因此我们就要手动来执行这个方法.
+首先在static中加入这行代码</p>
+<pre><code>System.setProperty(net.sf.ehcache.CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY,&quot;true&quot;);
+</code></pre>
+<p>如下所示</p>
+<pre><code>static {
+try {
+    InputStream inputStream = EhCacheWrap.class.getResourceAsStream(&quot;/databuscache.xml&quot;);
+    System.setProperty(net.sf.ehcache.CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY,&quot;true&quot;);
+    manager = new CacheManager(inputStream);
+    if (manager == null) {
+        manager = CacheManager.create();
+    }
+} catch (CacheException var1) {
+    var1.printStackTrace();
+    System.out.println(&quot;！！！Initialize cache manager failed.&quot; + var1);
+    logger.fatal(&quot;！！！Initialize cache manager failed.&quot;, var1);
+}
+</code></pre>
+<p>}</p>
+<p>然后在每次getCache()后都要调用flush()方法实时写入硬盘.</p>
+<pre><code>Cache cache=manager.getCache(arg0);
+cache.flush();
+</code></pre>
+<p>之后再测试就会发现读取缓存正常了,不会出现缓存丢失的情况</p>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://zbx1719.github.io/tag/GbM5pv7F_" class="tag">
-                    Erlang
+                  <a href="https://zbx1719.github.io/tag/MEs3-c6b5" class="tag">
+                    Java
+                  </a>
+                
+                  <a href="https://zbx1719.github.io/tag/EaKfF5xfI" class="tag">
+                    Ehcache
                   </a>
                 
               </div>
@@ -184,9 +175,9 @@ make &amp;&amp; make install</p>
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://zbx1719.github.io/post/jie-jue-bian-yi-an-zhuang-erlang-shi-ncurses-que-shi">
+                <a href="https://zbx1719.github.io/post/R6g6QlehW">
                   <h3 class="post-title">
-                    解决编译安装erlang时ncurses缺失
+                    Databus部署(Oracle)
                   </h3>
                 </a>
               </div>

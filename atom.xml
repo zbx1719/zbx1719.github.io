@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.zhubingxu.com</id>
+    <id>https://zbx1719.github.io</id>
     <title>杂记</title>
-    <updated>2019-05-26T07:30:19.019Z</updated>
+    <updated>2019-05-26T07:31:40.665Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://blog.zhubingxu.com"/>
-    <link rel="self" href="https://blog.zhubingxu.com/atom.xml"/>
+    <link rel="alternate" href="https://zbx1719.github.io"/>
+    <link rel="self" href="https://zbx1719.github.io/atom.xml"/>
     <subtitle>温故而知新</subtitle>
-    <logo>https://blog.zhubingxu.com/images/avatar.png</logo>
-    <icon>https://blog.zhubingxu.com/favicon.ico</icon>
+    <logo>https://zbx1719.github.io/images/avatar.png</logo>
+    <icon>https://zbx1719.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, 杂记</rights>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>https://blog.zhubingxu.com/post/hello-gridea</id>
-        <link href="https://blog.zhubingxu.com/post/hello-gridea">
+        <id>https://zbx1719.github.io/post/hello-gridea</id>
+        <link href="https://zbx1719.github.io/post/hello-gridea">
         </link>
         <updated>2018-12-11T16:00:00.000Z</updated>
         <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
@@ -44,8 +44,8 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Debezium部署(PostgreSQL)]]></title>
-        <id>https://blog.zhubingxu.com/post/debezium-bu-shu-postgresql</id>
-        <link href="https://blog.zhubingxu.com/post/debezium-bu-shu-postgresql">
+        <id>https://zbx1719.github.io/post/debezium-bu-shu-postgresql</id>
+        <link href="https://zbx1719.github.io/post/debezium-bu-shu-postgresql">
         </link>
         <updated>2018-06-05T00:56:23.000Z</updated>
         <summary type="html"><![CDATA[<p>debezium是一个用于抓取数据库变更事件的开源项目,它可以将数据实时的从数据库中抽取出来并通过kafka connect推送到kafka中.每一个部署到 Kafka的连接器都可以通过一个或者多个主题( 每个数据库表通常有一个主题) 捕获所有的变更并记录在一个或者多个服务器上。 Kafka 确保所有这些数据更改事件被复制和完全有序，并且允许许多客户端独立使用这些相同的数据</p>
@@ -159,8 +159,8 @@ local    replication     all                     trust
     </entry>
     <entry>
         <title type="html"><![CDATA[ ehcache持久化到硬盘index丢失问题]]></title>
-        <id>https://blog.zhubingxu.com/post/ehcache-chi-jiu-hua-dao-ying-pan-index-diu-shi-wen-ti</id>
-        <link href="https://blog.zhubingxu.com/post/ehcache-chi-jiu-hua-dao-ying-pan-index-diu-shi-wen-ti">
+        <id>https://zbx1719.github.io/post/ehcache-chi-jiu-hua-dao-ying-pan-index-diu-shi-wen-ti</id>
+        <link href="https://zbx1719.github.io/post/ehcache-chi-jiu-hua-dao-ying-pan-index-diu-shi-wen-ti">
         </link>
         <updated>2018-03-05T23:00:31.000Z</updated>
         <summary type="html"><![CDATA[<p>ehcache持久化到硬盘后会出现以.index结尾的索引文件和以.data结尾的数据文件.当ehcache重启时会从硬盘中加载数据缓存到内存中.</p>
@@ -220,8 +220,8 @@ cache.flush();
     </entry>
     <entry>
         <title type="html"><![CDATA[Databus部署(Oracle)]]></title>
-        <id>https://blog.zhubingxu.com/post/databus-bu-shu-oracle</id>
-        <link href="https://blog.zhubingxu.com/post/databus-bu-shu-oracle">
+        <id>https://zbx1719.github.io/post/databus-bu-shu-oracle</id>
+        <link href="https://zbx1719.github.io/post/databus-bu-shu-oracle">
         </link>
         <updated>2018-01-12T00:48:33.000Z</updated>
         <summary type="html"><![CDATA[<p>databus支持两种数据库:mysql和oracle.mysql采用的是bin-log方式,这种方式配置起来简单.还有一种是oracle.oracle由于没有bin-log机制,因此采用另外的一种方式</p>
@@ -337,8 +337,8 @@ sh createSchema.sh dbbus/dbbus@orcl /home/oracle/databus/databus2-example/databa
     </entry>
     <entry>
         <title type="html"><![CDATA[Databus部署(MYSQL)]]></title>
-        <id>https://blog.zhubingxu.com/post/databus-bu-shu-mysql</id>
-        <link href="https://blog.zhubingxu.com/post/databus-bu-shu-mysql">
+        <id>https://zbx1719.github.io/post/databus-bu-shu-mysql</id>
+        <link href="https://zbx1719.github.io/post/databus-bu-shu-mysql">
         </link>
         <updated>2017-12-19T07:23:19.000Z</updated>
         <summary type="html"><![CDATA[<p>Databus是一个由LinkedIn开源的低延迟、可靠的、支持事务的、保持一致性的数据变更抓取系统。它有以下特点:</p>
@@ -546,8 +546,8 @@ URI</p>
     </entry>
     <entry>
         <title type="html"><![CDATA[在Ubuntu17上安装Docker]]></title>
-        <id>https://blog.zhubingxu.com/post/zai-ubuntu17-shang-an-zhuang-docker</id>
-        <link href="https://blog.zhubingxu.com/post/zai-ubuntu17-shang-an-zhuang-docker">
+        <id>https://zbx1719.github.io/post/zai-ubuntu17-shang-an-zhuang-docker</id>
+        <link href="https://zbx1719.github.io/post/zai-ubuntu17-shang-an-zhuang-docker">
         </link>
         <updated>2017-11-17T12:35:17.000Z</updated>
         <summary type="html"><![CDATA[<p>在Ubuntu17上安装Docker</p>
@@ -615,8 +615,8 @@ sudo apt-get install docker-ce
     </entry>
     <entry>
         <title type="html"><![CDATA[erlang加载crypto时openssl缺失解决方案]]></title>
-        <id>https://blog.zhubingxu.com/post/erlang-jia-zai-crypto-shi-openssl-que-shi-jie-jue-fang-an</id>
-        <link href="https://blog.zhubingxu.com/post/erlang-jia-zai-crypto-shi-openssl-que-shi-jie-jue-fang-an">
+        <id>https://zbx1719.github.io/post/erlang-jia-zai-crypto-shi-openssl-que-shi-jie-jue-fang-an</id>
+        <link href="https://zbx1719.github.io/post/erlang-jia-zai-crypto-shi-openssl-que-shi-jie-jue-fang-an">
         </link>
         <updated>2017-11-15T11:27:04.000Z</updated>
         <summary type="html"><![CDATA[<p>erlang安装好erlang后使用crypto模块时报错,错误信息如下:</p>
@@ -697,8 +697,8 @@ make &amp;&amp; make install</p>
     </entry>
     <entry>
         <title type="html"><![CDATA[解决编译安装erlang时ncurses缺失]]></title>
-        <id>https://blog.zhubingxu.com/post/jie-jue-bian-yi-an-zhuang-erlang-shi-ncurses-que-shi</id>
-        <link href="https://blog.zhubingxu.com/post/jie-jue-bian-yi-an-zhuang-erlang-shi-ncurses-que-shi">
+        <id>https://zbx1719.github.io/post/jie-jue-bian-yi-an-zhuang-erlang-shi-ncurses-que-shi</id>
+        <link href="https://zbx1719.github.io/post/jie-jue-bian-yi-an-zhuang-erlang-shi-ncurses-que-shi">
         </link>
         <updated>2017-11-14T06:56:59.000Z</updated>
         <summary type="html"><![CDATA[<p>公司的服务器无法访问外网,因此需要下载好软件后传到服务器上进行编译
@@ -731,8 +731,8 @@ make install
     </entry>
     <entry>
         <title type="html"><![CDATA[在Ubuntu Server下安装Dropbox]]></title>
-        <id>https://blog.zhubingxu.com/post/zai-ubuntu-server-xia-an-zhuang-dropbox</id>
-        <link href="https://blog.zhubingxu.com/post/zai-ubuntu-server-xia-an-zhuang-dropbox">
+        <id>https://zbx1719.github.io/post/zai-ubuntu-server-xia-an-zhuang-dropbox</id>
+        <link href="https://zbx1719.github.io/post/zai-ubuntu-server-xia-an-zhuang-dropbox">
         </link>
         <updated>2017-10-18T22:00:54.000Z</updated>
         <summary type="html"><![CDATA[<p>服务器和本地之间要同步东西,总是用ftp挺烦的.发现Dropbox有Linux server版,刚好服务器处于海外不需要翻墙,于是安装一个用来同步文件.</p>
@@ -793,8 +793,8 @@ Works:          syncing
     </entry>
     <entry>
         <title type="html"><![CDATA[用Hexo搭建个人博客]]></title>
-        <id>https://blog.zhubingxu.com/post/yong-hexo-da-jian-ge-ren-bo-ke</id>
-        <link href="https://blog.zhubingxu.com/post/yong-hexo-da-jian-ge-ren-bo-ke">
+        <id>https://zbx1719.github.io/post/yong-hexo-da-jian-ge-ren-bo-ke</id>
+        <link href="https://zbx1719.github.io/post/yong-hexo-da-jian-ge-ren-bo-ke">
         </link>
         <updated>2017-10-18T18:40:36.000Z</updated>
         <summary type="html"><![CDATA[<p>有了VPS,可以用来科学上网,也可以搭建一个博客写一些东西.比较了各种博客框架最后选择了Hexo搭建博客.</p>
@@ -855,7 +855,7 @@ $ npm install
 <pre><code>hexo server
 </code></pre>
 <p>然后登录http://127.0.0.1:4000 即可查看效果
-<img src="https://blog.zhubingxu.com/post-images/1558853479160.jpeg" alt=""></p>
+<img src="https://zbx1719.github.io/post-images/1558853479160.jpeg" alt=""></p>
 <h2 id="hexo的使用">Hexo的使用</h2>
 <h4 id="新建一篇文章">新建一篇文章</h4>
 <p>在创建的hexo根目录下输入以下命令</p>

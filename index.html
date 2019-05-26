@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558857071346">
+<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558862453447">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://zbx1719.github.io/styles/main.css">
 
@@ -39,7 +39,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://zbx1719.github.io">
-        <img src="https://zbx1719.github.io/images/avatar.png?v=1558857071346" class="site-logo">
+        <img src="https://zbx1719.github.io/images/avatar.png?v=1558862453447" class="site-logo">
         <h1 class="site-title">杂记</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -104,6 +104,22 @@
 
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://zbx1719.github.io/post/XtmeIMFpH">
+                  <h2 class="post-title">用Gridea和Github搭建博客</h2>
+                </a>
+                <div class="post-date">
+                  2019-05-26
+                </div>
+                <div class="post-abstract">
+                  <p>目前主流的博客框架有Hexo和Wordpress，使用这些博客框架可以自行搭建一个博客。但是这样有一定缺点。Wordpress需要租用一台vps，只用于搭博客而且更新不频繁的话性价比很低。Hexo可以使用GitHub免费提供的GitHub page搭建博客，但是更新博客比较麻烦。直到我发现了Gridea</p>
+
+                </div>
+              </div>
+              
+            </article>
           
             <article class="post-item">
               <div class="left">
@@ -257,30 +273,6 @@
                 </div>
                 <div class="post-abstract">
                   <p>在Ubuntu17上安装Docker</p>
-
-                </div>
-              </div>
-              
-            </article>
-          
-            <article class="post-item">
-              <div class="left">
-                <a href="https://zbx1719.github.io/post/q7NSpg1gm">
-                  <h2 class="post-title">erlang加载crypto时openssl缺失解决方案</h2>
-                </a>
-                <div class="post-date">
-                  2017-11-15
-                </div>
-                <div class="post-abstract">
-                  <p>erlang安装好erlang后使用crypto模块时报错,错误信息如下:</p>
-<pre><code>Unable to load crypto library. Failed with error:
-&quot;load_failed, Failed to load NIF library: '/opt/app/mskyprocess/opt/otp183/lib/erlang/lib/crypto-3.7.3/priv/lib/crypto.so: undefined symbol: EC_GROUP_new_curve_GF2m'&quot;
-OpenSSL might not be installed on this system.
-
-=WARNING REPORT==== 15-Nov-2017::19:24:03 ===
-The on_load function for module crypto returned {error,
- {load_failed,
-  &quot;Failed to load NIF library: '/opt/app/mskyprocess/opt/otp183/lib/erlang/lib/crypto-3.7.3/priv/lib/crypto.so: undefined symbol: EC_GROUP_new_curve_GF2m'&quot;}}</code></pre>
 
                 </div>
               </div>

@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558862539817">
+<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1564408835194">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://zbx1719.github.io/styles/main.css">
 
@@ -45,7 +45,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://zbx1719.github.io">
-        <img src="https://zbx1719.github.io/images/avatar.png?v=1558862539817" class="site-logo">
+        <img src="https://zbx1719.github.io/images/avatar.png?v=1564408835194" class="site-logo">
         <h1 class="site-title">杂记</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -144,7 +144,7 @@ JVM:          1.8.0_131 (Oracle Corporation 25.131-b11)
 OS:           Mac OS X 10.13.2 x86_64
 </code></pre>
 <h2 id="数据库配置">数据库配置</h2>
-<p>安装mysql数据库.我使用的是5.5.56版本.高版本可能会有问题.
+<p>安装mysql数据库.我使用的是5.5.56版本.高版本可能会有问题.<br>
 数据库要开启binlog,查看是否开启的方法是</p>
 <pre><code>  SHOW VARIABLES LIKE 'log_bin';
 </code></pre>
@@ -216,7 +216,7 @@ catch (Exception e)
 }
 }
 </code></pre>
-<p>配置被监控表的信息:修改databus2-example-relay-pkg/conf/sources-or-person.json的内容,其中
+<p>配置被监控表的信息:修改databus2-example-relay-pkg/conf/sources-or-person.json的内容,其中<br>
 URI</p>
 <pre><code>format:mysql://username/password@mysql_host[:mysql_port]/mysql_serverid/binlog_prefix,
 </code></pre>
@@ -267,7 +267,7 @@ URI</p>
   } ]
 }
 </code></pre>
-<p>注册Avro schema到index.schemas_registry文件databus2-example-relay-pkg/schemas_registry/index.schemas_registry文件中,
+<p>注册Avro schema到index.schemas_registry文件databus2-example-relay-pkg/schemas_registry/index.schemas_registry文件中,<br>
 添加行com.linkedin.events.example.or_test.Person.1.avsc ，每定义一个Avro schema都需要添加进去，relay运行时会到此文件中查找表对应的定义的Avro schema。</p>
 <h2 id="部署启动">部署启动</h2>
 <p>进入databus根目录执行命令gradle -Dopen_source=true assemble即可完成build,成功后在databus根目录下生成名为build的文件夹</p>
@@ -282,7 +282,7 @@ URI</p>
 <ul>
 <li>cd build/databus2-example-client-pkg/distributions</li>
 <li>tar -zxvf databus2-example-client-pkg.tar.gz解压</li>
-<li>执行启动脚本 ./bin/start-example-client.sh person
+<li>执行启动脚本 ./bin/start-example-client.sh person<br>
 执行命令 curl http://localhost:11115/relayStats/outbound/http/clients 返回如下内容说明启动成功：</li>
 </ul>
 <h2 id="测试">测试</h2>

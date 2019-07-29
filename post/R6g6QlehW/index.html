@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558862539817">
+<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1564408835194">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://zbx1719.github.io/styles/main.css">
 
@@ -45,7 +45,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://zbx1719.github.io">
-        <img src="https://zbx1719.github.io/images/avatar.png?v=1558862539817" class="site-logo">
+        <img src="https://zbx1719.github.io/images/avatar.png?v=1564408835194" class="site-logo">
         <h1 class="site-title">杂记</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -189,8 +189,8 @@ catch (Exception e)
 <pre><code>gradle -Dopen_source=true assemble
 </code></pre>
 <h1 id="配置oracle">配置oracle</h1>
-<p>databus里自带了配置脚本,我们可以用它来实现对oracle的快速配置
-oracle配置脚本位于databus文件夹下的 /db/oracle/bin 路径
+<p>databus里自带了配置脚本,我们可以用它来实现对oracle的快速配置<br>
+oracle配置脚本位于databus文件夹下的 /db/oracle/bin 路径<br>
 首先要执行 createUser.sh脚本,在执行之前需要做一些修改:</p>
 <pre><code>将下面这行的 system/manager\@${DBNAME} 删掉
 sqlplus system/manager\@${DBNAME} as sysdba &lt;&lt; __EOF__
@@ -208,13 +208,13 @@ sh createUser.sh dbbus dbbus orcl tbs_dbbus /u01/app/oracle/product/11.2.0/dbs/
 <pre><code>#createSchema.sh db_username/db_password@db_id tab_and_view_path
 sh createSchema.sh dbbus/dbbus@orcl /home/oracle/databus/databus2-example/database/person
 </code></pre>
-<p>启动Relay:
-* cd build/databus2-example-relay-pkg/distributions
-* tar -zxvf databus2-example-relay-pkg.tar.gz解压
+<p>启动Relay:<br>
+* cd build/databus2-example-relay-pkg/distributions<br>
+* tar -zxvf databus2-example-relay-pkg.tar.gz解压<br>
 * 执行启动脚本 ./bin/start-example-relay.sh person</p>
-<p>启动 Client:
-* cd build/databus2-example-client-pkg/distributions
-* tar -zxvf databus2-example-client-pkg.tar.gz解压
+<p>启动 Client:<br>
+* cd build/databus2-example-client-pkg/distributions<br>
+* tar -zxvf databus2-example-client-pkg.tar.gz解压<br>
 * 执行启动脚本 ./bin/start-example-client.sh person</p>
 <p>在oracle中执行insert语句</p>
 <pre><code>INSERT INTO person(id,first_name, last_name) VALUES(1,'balaji', 'varadaran');

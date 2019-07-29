@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558862539817">
+<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1564408835194">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://zbx1719.github.io/styles/main.css">
 
@@ -45,7 +45,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://zbx1719.github.io">
-        <img src="https://zbx1719.github.io/images/avatar.png?v=1558862539817" class="site-logo">
+        <img src="https://zbx1719.github.io/images/avatar.png?v=1564408835194" class="site-logo">
         <h1 class="site-title">杂记</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -118,8 +118,8 @@
               <p>databus oracle保存scn采用oracle原生的scn号，Mysql的scn是通过算法计算出来的。MaxScn是一个64位的long型数据。</p>
 <!-- more -->
 <h2 id="id和position转成maxscn">id和position转成MaxScn</h2>
-<p>databus会将mysql的binlog file id和position读出来，例如file name为mysql-bin.000028，id为000028，position为208272177。
-拿到id和position后通过位运算将000028左移32位转成120259084288作为MaxScn的高32位，将208272177作为MaxScn的低32位。
+<p>databus会将mysql的binlog file id和position读出来，例如file name为mysql-bin.000028，id为000028，position为208272177。<br>
+拿到id和position后通过位运算将000028左移32位转成120259084288作为MaxScn的高32位，将208272177作为MaxScn的低32位。<br>
 120259084288 与208272177进行或运算(|)得到120467356465即为当前的scn。</p>
 <pre><code class="language-java">/**
  * Creates the SCN from logId and offset

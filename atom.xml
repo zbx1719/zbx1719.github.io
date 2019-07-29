@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://zbx1719.github.io</id>
     <title>杂记</title>
-    <updated>2019-05-26T09:22:26.727Z</updated>
+    <updated>2019-07-29T14:00:40.853Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://zbx1719.github.io"/>
     <link rel="self" href="https://zbx1719.github.io/atom.xml"/>
@@ -10,6 +10,69 @@
     <logo>https://zbx1719.github.io/images/avatar.png</logo>
     <icon>https://zbx1719.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, 杂记</rights>
+    <entry>
+        <title type="html"><![CDATA[ Databus增加insert事件状态]]></title>
+        <id>https://zbx1719.github.io/post/6mc-pVV__</id>
+        <link href="https://zbx1719.github.io/post/6mc-pVV__">
+        </link>
+        <updated>2019-05-28T10:17:31.000Z</updated>
+        <summary type="html"><![CDATA[<p>Databus使用的时候发现解析mysql bin log只会生成delete和update事件，打断点调试发现mysql标记事件状态是在databus2-event-producer-or包中的ORListener类中进行的。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>Databus使用的时候发现解析mysql bin log只会生成delete和update事件，打断点调试发现mysql标记事件状态是在databus2-event-producer-or包中的ORListener类中进行的。</p>
+<!-- more -->
+<pre><code class="language-java">//处理delete事件
+private void deleteRows(DeleteRowsEvent dre)
+{
+  if (_ignoreSource) {
+    LOG.info(&quot;Ignoring delete rows for &quot; + _curSourceName);
+    return;
+  }
+  LOG.info(&quot;DELETE FROM &quot; + _curSourceName);
+  frameAvroRecord(dre.getTableId(), dre.getHeader(), dre.getRows(), DbusOpcode.DELETE);
+}
+//处理update事件
+private void updateRows(UpdateRowsEvent ure)
+{
+  if (_ignoreSource) {
+    LOG.info(&quot;Ignoring update rows for &quot; + _curSourceName);
+    return;
+  }
+  List&lt;Pair&lt;Row&gt;&gt; lp = ure.getRows();
+  List&lt;Row&gt; lr =  new ArrayList&lt;Row&gt;(lp.size());
+  for (Pair&lt;Row&gt; pr: lp)
+  {
+    Row r = pr.getAfter();
+    lr.add(r);
+  }
+  if (lr.size() &gt; 0) {
+    LOG.info(&quot;UPDATE &quot; + _curSourceName + &quot;: &quot; + lr.size());
+    frameAvroRecord(ure.getTableId(), ure.getHeader(), lr, DbusOpcode.UPSERT);
+  }
+}
+//处理insert事件
+private void insertRows(WriteRowsEvent wre)
+{
+  if (_ignoreSource) {
+    LOG.info(&quot;Ignoring insert rows for &quot; + _curSourceName);
+    return;
+  }
+  LOG.info(&quot;INSERT INTO &quot; + _curSourceName);
+  frameAvroRecord(wre.getTableId(), wre.getHeader(), wre.getRows(), DbusOpcode.UPSERT);
+}
+</code></pre>
+<p>可以看出，update事件和insert事件在这里都会被标记成DbusOpcode.UPSERT来处理，这样就无法区分事件是insert还是update了。</p>
+<p>这样的话我们就需要修改DbusOpcode这个枚举类，这个类存在于databus-core-impl包中。在类中加入INSERT</p>
+<pre><code class="language-java">public enum DbusOpcode
+{
+  INSERT,
+  UPSERT,
+  DELETE
+}
+</code></pre>
+<p>加入后把ORListener类中updateRows方法里的DbusOpcode.UPSERT都改成DbusOpcode.INSERT。这样insert<br>
+事件和update事件就区分出来了。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[用Gridea和Github搭建博客]]></title>
         <id>https://zbx1719.github.io/post/XtmeIMFpH</id>
@@ -23,13 +86,13 @@
 <h2 id="gridea简介">Gridea简介</h2>
 <p><a href="https://gridea.dev">Gridea</a>是一个跨平台的开源博客写作软件，支持Mac，Windows和Linux。使用Gridea可以很轻松的写作、管理和推送博客到GitHub Page上。如果之前用过Hexo的话会发现Gridea很容易上手。</p>
 <h2 id="gridea配置">Gridea配置</h2>
-<p>Gridea下载后是如下界面
-<img src="https://raw.githubusercontent.com/getgridea/gridea/develop/gridea-app.png" alt="">
-点击配置，将自己的GitHub page信息填入
-<img src="https://zbx1719.github.io/post-images/1558862427449.png" alt="">
-GitHub page创建可以参考这篇文章<a href="https://zhuanlan.zhihu.com/p/23761258">利用Github Page 搭建个人博客网站</a>
-填写完成后点击保存即可
-文章写完后点击预览可以查看效果
+<p>Gridea下载后是如下界面<br>
+<img src="https://raw.githubusercontent.com/getgridea/gridea/develop/gridea-app.png" alt=""><br>
+点击配置，将自己的GitHub page信息填入<br>
+<img src="https://zbx1719.github.io/post-images/1558862427449.png" alt=""><br>
+GitHub page创建可以参考这篇文章<a href="https://zhuanlan.zhihu.com/p/23761258">利用Github Page 搭建个人博客网站</a><br>
+填写完成后点击保存即可<br>
+文章写完后点击预览可以查看效果<br>
 <img src="https://zbx1719.github.io/post-images/1558862171926.png" alt=""></p>
 ]]></content>
     </entry>
@@ -46,7 +109,7 @@ GitHub page创建可以参考这篇文章<a href="https://zhuanlan.zhihu.com/p/2
 <pre><code>@Autowired
 public CacheMapper cacheMapper;
 </code></pre>
-<p>但是会发现mapper注入失败，cacheMapper为null。这是因为静态变量/类变量不是对象的属性,而是一个类的属性,spring则是基于对象层面上的依赖注入。
+<p>但是会发现mapper注入失败，cacheMapper为null。这是因为静态变量/类变量不是对象的属性,而是一个类的属性,spring则是基于对象层面上的依赖注入。<br>
 因此，我们要通过以下的方法，把cacheMapper变成一个静态变量，让static方法可以调用。</p>
 <pre><code>@Component
 public class SQLiteHelper {
@@ -176,7 +239,7 @@ public interface CacheMapper {
 
 &lt;/mapper&gt;
 </code></pre>
-<p>工程启动时要调用建表的方法，防止新节点没有对应的数据库文件。
+<p>工程启动时要调用建表的方法，防止新节点没有对应的数据库文件。<br>
 我们可以测试一下</p>
 <pre><code>@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(value = &quot;classpath:applicationContext-infoclient.xml&quot;)
@@ -206,8 +269,8 @@ public class TestMapper {
         <content type="html"><![CDATA[<p>databus oracle保存scn采用oracle原生的scn号，Mysql的scn是通过算法计算出来的。MaxScn是一个64位的long型数据。</p>
 <!-- more -->
 <h2 id="id和position转成maxscn">id和position转成MaxScn</h2>
-<p>databus会将mysql的binlog file id和position读出来，例如file name为mysql-bin.000028，id为000028，position为208272177。
-拿到id和position后通过位运算将000028左移32位转成120259084288作为MaxScn的高32位，将208272177作为MaxScn的低32位。
+<p>databus会将mysql的binlog file id和position读出来，例如file name为mysql-bin.000028，id为000028，position为208272177。<br>
+拿到id和position后通过位运算将000028左移32位转成120259084288作为MaxScn的高32位，将208272177作为MaxScn的低32位。<br>
 120259084288 与208272177进行或运算(|)得到120467356465即为当前的scn。</p>
 <pre><code class="language-java">/**
  * Creates the SCN from logId and offset
@@ -307,10 +370,10 @@ public static int offset(long scn)
 <li>PostgreSQL版本9.4+</li>
 <li>kafka版本0.9.0+</li>
 </ul>
-<p>PostgreSQL版本需要升级到9.4以上是因为从9.4版本开始,PostgreSQL引入了logical decoding 功能,它允许第三方逻辑解码插件将它的事务日志输出.
+<p>PostgreSQL版本需要升级到9.4以上是因为从9.4版本开始,PostgreSQL引入了logical decoding 功能,它允许第三方逻辑解码插件将它的事务日志输出.<br>
 kafka 在0.9.0版本后支持kafka connect,debezium本质上是kafka connect插件,因此需要有kafka connect的支持.</p>
 <h2 id="数据库配置">数据库配置</h2>
-<p>在部署debezium前需要对PostgreSQL进行配置.我使用的是9.4版本的库.debezium支持两个逻辑解码插件
+<p>在部署debezium前需要对PostgreSQL进行配置.我使用的是9.4版本的库.debezium支持两个逻辑解码插件<br>
 <a href="https://github.com/debezium/postgres-decoderbufs">Protobuf based</a>和<a href="https://github.com/eulerto/wal2json">wal2json</a>.因为Protobuf based要求数据库版本在9.6以上,因此我采用了wal2json配置.</p>
 <h3 id="编译安装">编译安装</h3>
 <pre><code># 通过从github上下载插件源码
@@ -440,7 +503,7 @@ total 16
 </code></pre>
 <p>而ehcache的.index文件和.data文件时间不一致的原因是ehcache是在停止的时候通过触发一个事件来生成.index文件的,而我们非正常停止是不会触发这个事件的,这就导致.data时间更新了而.index时间不变.</p>
 <h1 id="解决办法">解决办法</h1>
-<p>因为非正常关闭是不会触发写入.index文件这个方法,因此我们就要手动来执行这个方法.
+<p>因为非正常关闭是不会触发写入.index文件这个方法,因此我们就要手动来执行这个方法.<br>
 首先在static中加入这行代码</p>
 <pre><code>System.setProperty(net.sf.ehcache.CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY,&quot;true&quot;);
 </code></pre>
@@ -549,8 +612,8 @@ catch (Exception e)
 <pre><code>gradle -Dopen_source=true assemble
 </code></pre>
 <h1 id="配置oracle">配置oracle</h1>
-<p>databus里自带了配置脚本,我们可以用它来实现对oracle的快速配置
-oracle配置脚本位于databus文件夹下的 /db/oracle/bin 路径
+<p>databus里自带了配置脚本,我们可以用它来实现对oracle的快速配置<br>
+oracle配置脚本位于databus文件夹下的 /db/oracle/bin 路径<br>
 首先要执行 createUser.sh脚本,在执行之前需要做一些修改:</p>
 <pre><code>将下面这行的 system/manager\@${DBNAME} 删掉
 sqlplus system/manager\@${DBNAME} as sysdba &lt;&lt; __EOF__
@@ -568,13 +631,13 @@ sh createUser.sh dbbus dbbus orcl tbs_dbbus /u01/app/oracle/product/11.2.0/dbs/
 <pre><code>#createSchema.sh db_username/db_password@db_id tab_and_view_path
 sh createSchema.sh dbbus/dbbus@orcl /home/oracle/databus/databus2-example/database/person
 </code></pre>
-<p>启动Relay:
-* cd build/databus2-example-relay-pkg/distributions
-* tar -zxvf databus2-example-relay-pkg.tar.gz解压
+<p>启动Relay:<br>
+* cd build/databus2-example-relay-pkg/distributions<br>
+* tar -zxvf databus2-example-relay-pkg.tar.gz解压<br>
 * 执行启动脚本 ./bin/start-example-relay.sh person</p>
-<p>启动 Client:
-* cd build/databus2-example-client-pkg/distributions
-* tar -zxvf databus2-example-client-pkg.tar.gz解压
+<p>启动 Client:<br>
+* cd build/databus2-example-client-pkg/distributions<br>
+* tar -zxvf databus2-example-client-pkg.tar.gz解压<br>
 * 执行启动脚本 ./bin/start-example-client.sh person</p>
 <p>在oracle中执行insert语句</p>
 <pre><code>INSERT INTO person(id,first_name, last_name) VALUES(1,'balaji', 'varadaran');
@@ -628,7 +691,7 @@ JVM:          1.8.0_131 (Oracle Corporation 25.131-b11)
 OS:           Mac OS X 10.13.2 x86_64
 </code></pre>
 <h2 id="数据库配置">数据库配置</h2>
-<p>安装mysql数据库.我使用的是5.5.56版本.高版本可能会有问题.
+<p>安装mysql数据库.我使用的是5.5.56版本.高版本可能会有问题.<br>
 数据库要开启binlog,查看是否开启的方法是</p>
 <pre><code>  SHOW VARIABLES LIKE 'log_bin';
 </code></pre>
@@ -700,7 +763,7 @@ catch (Exception e)
 }
 }
 </code></pre>
-<p>配置被监控表的信息:修改databus2-example-relay-pkg/conf/sources-or-person.json的内容,其中
+<p>配置被监控表的信息:修改databus2-example-relay-pkg/conf/sources-or-person.json的内容,其中<br>
 URI</p>
 <pre><code>format:mysql://username/password@mysql_host[:mysql_port]/mysql_serverid/binlog_prefix,
 </code></pre>
@@ -751,7 +814,7 @@ URI</p>
   } ]
 }
 </code></pre>
-<p>注册Avro schema到index.schemas_registry文件databus2-example-relay-pkg/schemas_registry/index.schemas_registry文件中,
+<p>注册Avro schema到index.schemas_registry文件databus2-example-relay-pkg/schemas_registry/index.schemas_registry文件中,<br>
 添加行com.linkedin.events.example.or_test.Person.1.avsc ，每定义一个Avro schema都需要添加进去，relay运行时会到此文件中查找表对应的定义的Avro schema。</p>
 <h2 id="部署启动">部署启动</h2>
 <p>进入databus根目录执行命令gradle -Dopen_source=true assemble即可完成build,成功后在databus根目录下生成名为build的文件夹</p>
@@ -766,7 +829,7 @@ URI</p>
 <ul>
 <li>cd build/databus2-example-client-pkg/distributions</li>
 <li>tar -zxvf databus2-example-client-pkg.tar.gz解压</li>
-<li>执行启动脚本 ./bin/start-example-client.sh person
+<li>执行启动脚本 ./bin/start-example-client.sh person<br>
 执行命令 curl http://localhost:11115/relayStats/outbound/http/clients 返回如下内容说明启动成功：</li>
 </ul>
 <h2 id="测试">测试</h2>
@@ -790,75 +853,6 @@ URI</p>
 <li><a href="https://github.com/linkedin/databus">databus GitHub地址</a></li>
 <li><a href="http://www.jianshu.com/p/9df54eb1ec35">linkedin 的 databus 部署(简书)</a></li>
 <li><a href="http://tech.lede.com/2017/05/24/rd/server/databus/">Databus架构分析与初步实践（for mysql）</a></li>
-</ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[在Ubuntu17上安装Docker]]></title>
-        <id>https://zbx1719.github.io/post/2fLpb8STQ</id>
-        <link href="https://zbx1719.github.io/post/2fLpb8STQ">
-        </link>
-        <updated>2017-11-17T12:35:17.000Z</updated>
-        <summary type="html"><![CDATA[<p>在Ubuntu17上安装Docker</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>在Ubuntu17上安装Docker</p>
-<!-- more -->
-<h1 id="准备">准备</h1>
-<ul>
-<li>
-<p>首先安装Docker所需的依赖</p>
-<pre><code>sudo apt-get update
-sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
-</code></pre>
-</li>
-</ul>
-<h1 id="安装">安装</h1>
-<ul>
-<li>
-<p>为了确认所下载软件包的合法性，需要添加软件源的 GPG 密钥。</p>
-<pre><code>curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-</code></pre>
-</li>
-<li>
-<p>通过搜索指纹的最后8个字符，确认您现在已经拥有指纹9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88的密钥。</p>
-<pre><code>sudo apt-key fingerprint 0EBFCD88
-</code></pre>
-</li>
-<li>
-<p>添加docker源</p>
-<pre><code>sudo add-apt-repository &quot;deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable&quot;
-</code></pre>
-</li>
-<li>
-<p>更新apt-get并安装docker</p>
-<pre><code>sudo apt-get update
-sudo apt-get install docker-ce
-</code></pre>
-</li>
-<li>
-<p>启动docker</p>
-<pre><code>sudo service docker start
-</code></pre>
-</li>
-</ul>
-<h1 id="问题">问题</h1>
-<ul>
-<li>
-<p>如果运行命令遇到问题</p>
-<pre><code>dial unix /var/run/docker.sock: permission denied.Are you trying to connect to a TLS-enabled
-</code></pre>
-<p>解决方法：</p>
-<p>把当前用户加入docker用户组。</p>
-<pre><code>  sudo gpasswd -a ${USER} docker
-</code></pre>
-<p>查看是否添加成功：</p>
-<pre><code>  cat /etc/group | grep ^docker
-</code></pre>
-<p>重启docker</p>
-<pre><code>  sudo serivce docker restart
-</code></pre>
-<p>如果重启后不成功，退出当前账户重新登录。</p>
-</li>
 </ul>
 ]]></content>
     </entry>

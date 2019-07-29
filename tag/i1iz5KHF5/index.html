@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1558862539817">
+<link rel="shortcut icon" href="https://zbx1719.github.io/favicon.ico?v=1564408835194">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://zbx1719.github.io/styles/main.css">
 
@@ -39,7 +39,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://zbx1719.github.io">
-        <img src="https://zbx1719.github.io/images/avatar.png?v=1558862539817" class="site-logo">
+        <img src="https://zbx1719.github.io/images/avatar.png?v=1564408835194" class="site-logo">
         <h1 class="site-title">杂记</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -105,6 +105,22 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <h2 class="current-tag">标签: MySQL</h2>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://zbx1719.github.io/post/6mc-pVV__">
+                  <h2 class="post-title"> Databus增加insert事件状态</h2>
+                </a>
+                <div class="post-date">
+                  2019-05-28
+                </div>
+                <div class="post-abstract">
+                  <p>Databus使用的时候发现解析mysql bin log只会生成delete和update事件，打断点调试发现mysql标记事件状态是在databus2-event-producer-or包中的ORListener类中进行的。</p>
+
+                </div>
+              </div>
+              
+            </article>
           
             <article class="post-item">
               <div class="left">
